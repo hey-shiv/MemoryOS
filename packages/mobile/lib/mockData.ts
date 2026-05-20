@@ -27,21 +27,21 @@ export type Collection = {
 };
 
 export const COLORS = {
-  bg: '#0A0A09',
-  surface: '#141413',
-  surfaceAlt: '#1C1C1A',
-  surfaceGreen: '#141A14',
-  ivory: '#F5F0E8',
-  textPrimary: '#F2EDE4',
-  textSecondary: '#8A857C',
-  textTertiary: '#5A5550',
-  textDark: '#1A1A18',
-  lime: '#C8F135',
+  bg: '#070806',
+  surface: '#11120F',
+  surfaceAlt: '#181A14',
+  surfaceGreen: '#10180F',
+  ivory: '#F8F1E7',
+  textPrimary: '#F8F1E7',
+  textSecondary: '#A49D90',
+  textTertiary: '#625D54',
+  textDark: '#11120F',
+  lime: '#C8FF2E',
   amber: '#F5A623',
-  cyan: '#3ECFCF',
+  cyan: '#35D5D5',
   red: '#E85D4A',
-  border: '#242420',
-  borderMuted: '#1E1E1B',
+  border: 'rgba(245,240,232,0.12)',
+  borderMuted: 'rgba(245,240,232,0.07)',
 };
 
 export const mockMemories: MemoryItem[] = [

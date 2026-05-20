@@ -133,11 +133,13 @@ export default function CollectionsScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
+      <View style={styles.glow} />
       {/* Header */}
       <View style={styles.header}>
         <View>
+          <Text style={styles.kicker}>AI ARCHIVE</Text>
           <Text style={styles.screenTitle}>Collections</Text>
-          <Text style={styles.screenSubtitle}>{collections.length} smart collections</Text>
+          <Text style={styles.screenSubtitle}>Your camera roll, rebuilt as knowledge</Text>
         </View>
         <Pressable
           style={styles.toggleBtn}
@@ -206,7 +208,16 @@ export default function CollectionsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bg,
+    backgroundColor: "#070806",
+  },
+  glow: {
+    position: "absolute",
+    top: -90,
+    right: -80,
+    width: 220,
+    height: 220,
+    borderRadius: 110,
+    backgroundColor: "rgba(200,255,46,0.07)",
   },
   header: {
     flexDirection: "row",
@@ -214,13 +225,19 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
     paddingTop: 12,
-    paddingBottom: 16,
+    paddingBottom: 14,
+  },
+  kicker: {
+    fontSize: 10,
+    fontWeight: "900",
+    color: COLORS.lime,
+    letterSpacing: 1.8,
+    marginBottom: 3,
   },
   screenTitle: {
-    fontSize: 28,
-    fontWeight: "800",
-    color: COLORS.textPrimary,
-    letterSpacing: -0.5,
+    fontSize: 34,
+    fontWeight: "900",
+    color: "#F8F1E7",
   },
   screenSubtitle: {
     fontSize: 13,
@@ -230,8 +247,8 @@ const styles = StyleSheet.create({
   toggleBtn: {
     width: 40,
     height: 40,
-    borderRadius: 8,
-    backgroundColor: COLORS.surface,
+    borderRadius: 10,
+    backgroundColor: "rgba(245,240,232,0.06)",
     borderWidth: 1,
     borderColor: COLORS.border,
     alignItems: "center",
@@ -245,14 +262,14 @@ const styles = StyleSheet.create({
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 7,
-    borderRadius: 6,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: COLORS.border,
-    backgroundColor: COLORS.surface,
+    backgroundColor: "rgba(245,240,232,0.045)",
   },
   chipActive: {
-    borderColor: COLORS.lime + "50",
-    backgroundColor: "rgba(200, 241, 53, 0.08)",
+    borderColor: COLORS.lime + "55",
+    backgroundColor: "rgba(200,255,46,0.10)",
   },
   chipText: {
     fontSize: 12,
@@ -264,7 +281,7 @@ const styles = StyleSheet.create({
   },
   divider: {
     height: 1,
-    backgroundColor: COLORS.border,
+    backgroundColor: "rgba(245,240,232,0.07)",
     marginBottom: 16,
   },
   scroll: {
@@ -277,40 +294,43 @@ const styles = StyleSheet.create({
   },
   gridCard: {
     borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 10,
+    borderColor: "rgba(245,240,232,0.11)",
+    borderRadius: 12,
     padding: 14,
-    minHeight: 130,
+    minHeight: 152,
+    overflow: "hidden",
   },
   gridCardHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 10,
+    marginBottom: 12,
   },
   gridIconWrapper: {
     width: 36,
     height: 36,
-    borderRadius: 8,
+    borderRadius: 10,
     borderWidth: 1,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "rgba(255,255,255,0.04)",
   },
   gridCardName: {
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: 16,
+    fontWeight: "900",
     marginBottom: 3,
+    lineHeight: 19,
   },
   gridCardCount: {
     fontSize: 11,
     color: COLORS.textTertiary,
-    marginBottom: 6,
+    marginBottom: 8,
+    fontWeight: "800",
   },
   gridCardInsight: {
     fontSize: 11,
     color: COLORS.textSecondary,
-    lineHeight: 15,
+    lineHeight: 16,
   },
   listCard: {
     flexDirection: "row",

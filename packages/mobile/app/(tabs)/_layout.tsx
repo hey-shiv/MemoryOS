@@ -21,9 +21,7 @@ function TabIcon({ focused, icon, label, isCenter }: TabIconProps) {
   if (isCenter) {
     return (
       <View style={styles.centerTabItem}>
-        <View style={[styles.centerIconWrapper, focused && styles.centerIconWrapperActive]}>
-          {icon}
-        </View>
+        <View style={styles.centerIconWrapper}>{icon}</View>
       </View>
     );
   }
@@ -41,21 +39,23 @@ function TabIcon({ focused, icon, label, isCenter }: TabIconProps) {
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
-  const TAB_HEIGHT = 64;
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#0E0E0C",
-          borderTopColor: "rgba(245,240,232,0.08)",
+          position: "absolute",
+          backgroundColor: "rgba(8,9,7,0.96)",
+          borderTopColor: "rgba(245,240,232,0.10)",
           borderTopWidth: 1,
-          height: TAB_HEIGHT + insets.bottom,
+          height: 68 + insets.bottom,
           paddingBottom: insets.bottom,
-          paddingTop: 8,
+          paddingTop: 9,
           elevation: 0,
-          shadowOpacity: 0,
+          shadowColor: "#000",
+          shadowOpacity: 0.35,
+          shadowRadius: 18,
         },
         tabBarShowLabel: false,
       }}
@@ -151,6 +151,7 @@ export default function TabLayout() {
           ),
         }}
       />
+      {/* Hide settings from tab bar but keep it routable */}
       <Tabs.Screen
         name="settings"
         options={{ href: null }}
@@ -167,44 +168,41 @@ const styles = StyleSheet.create({
   },
   iconWrapper: {
     width: 38,
-    height: 28,
+    height: 30,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: 8,
+    borderRadius: 9,
   },
   iconWrapperActive: {
-    backgroundColor: "rgba(200, 241, 53, 0.1)",
+    backgroundColor: "rgba(200, 255, 46, 0.13)",
+    borderWidth: 1,
+    borderColor: "rgba(200, 255, 46, 0.20)",
   },
   tabLabel: {
-    fontSize: 10,
-    fontWeight: "500",
-    letterSpacing: 0.4,
+    fontSize: 9,
+    fontWeight: "800",
+    letterSpacing: 0.5,
     color: COLORS.textTertiary,
   },
   tabLabelActive: {
     color: COLORS.lime,
-    fontWeight: "700",
   },
   centerTabItem: {
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 6,
+    marginBottom: 8,
   },
   centerIconWrapper: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 54,
+    height: 54,
+    borderRadius: 27,
     backgroundColor: COLORS.lime,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: COLORS.lime,
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.5,
-    shadowRadius: 10,
-    elevation: 8,
-  },
-  centerIconWrapperActive: {
-    shadowOpacity: 0.8,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.55,
     shadowRadius: 16,
+    elevation: 6,
   },
 });
