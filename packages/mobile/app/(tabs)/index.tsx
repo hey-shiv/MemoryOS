@@ -1,222 +1,217 @@
 import React from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Pressable,
-} from "react-native";
+import { View, Text, ScrollView, StyleSheet, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import {
-  MagnifyingGlass,
-  Brain,
   ArrowRight,
-  Sparkle,
+  Brain,
   Code,
-  Rocket,
-  BookOpen,
-  Quotes,
   ForkKnife,
+  MagnifyingGlass,
   Receipt,
-  Student,
-  Barbell,
-  MapPin,
-  Smiley,
-  FileText,
+  Rocket,
   ShieldWarning,
-  LockKey,
-  Scan,
+  Sparkle,
 } from "phosphor-react-native";
-import { COLORS, mockMemories, collections } from "../../lib/mockData";
+import { COLORS, collections, mockMemories } from "../../lib/mockData";
+
+const SERIF = "Georgia";
+const BLACK = "#050503";
+const CREAM = "#E8E4D6";
+const INK = "#181811";
+const HAIR = "rgba(232,228,214,0.16)";
+const HAIR_DARK = "rgba(24,24,17,0.12)";
+const ACID = "#C8FF2E";
+const ROSE = "#F13A8B";
+const CYAN = "#72D7D0";
 
 const iconMap: Record<string, React.ComponentType<any>> = {
   Code,
   Rocket,
-  BookOpen,
-  Quotes,
   ForkKnife,
   Receipt,
-  Student,
-  Barbell,
-  MapPin,
-  Smiley,
-  FileText,
   ShieldWarning,
 };
 
-function SectionHeader({ title, action, onPress }: { title: string; action?: string; onPress?: () => void }) {
+const roman = ["I", "II", "III", "IV", "V", "VI"];
+const navItems = ["Screenshots", "Ideas", "Code", "Receipts", "Places", "Private"];
+
+function Geometry({ dark = false }: { dark?: boolean }) {
+  const lineColor = dark ? HAIR_DARK : HAIR;
   return (
-    <View style={styles.sectionHeader}>
-      <Text style={styles.sectionTitle}>{title}</Text>
-      {action && (
-        <Pressable style={styles.sectionAction} onPress={onPress}>
-          <Text style={styles.sectionActionText}>{action}</Text>
-          <ArrowRight size={12} color={COLORS.lime} weight="bold" />
-        </Pressable>
-      )}
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      {[0, 1, 2, 3].map((i) => (
+        <View key={`v-${i}`} style={[styles.vLine, { left: `${18 + i * 23}%`, backgroundColor: lineColor }]} />
+      ))}
+      {[0, 1].map((i) => (
+        <View key={`h-${i}`} style={[styles.hLine, { top: `${28 + i * 34}%`, backgroundColor: lineColor }]} />
+      ))}
+      <View style={[styles.circleOne, { borderColor: lineColor }]} />
+      <View style={[styles.circleTwo, { borderColor: lineColor }]} />
+      <View style={[styles.diagonalA, { backgroundColor: lineColor }]} />
+      <View style={[styles.diagonalB, { backgroundColor: lineColor }]} />
     </View>
   );
 }
 
-function MemoryTile({ item, onPress }: any) {
-  const Icon = iconMap[item.icon] || Code;
+function EditionMark({ dark = false }: { dark?: boolean }) {
   return (
-    <Pressable style={[styles.memoryTile, { backgroundColor: item.bgColor }]} onPress={() => onPress(item.id)}>
-      <View style={styles.memoryVisual}>
-        <Icon size={24} color={item.accentColor} weight="duotone" />
-        <View style={[styles.scanLine, { backgroundColor: item.accentColor }]} />
-      </View>
-      <View style={styles.memoryMeta}>
-        <View style={[styles.microPill, { borderColor: item.accentColor + "55" }]}>
-          <Text style={[styles.microPillText, { color: item.accentColor }]}>{item.category.toUpperCase()}</Text>
-        </View>
-        <Text style={[styles.memoryTitle, { color: item.textColor }]} numberOfLines={1}>{item.title}</Text>
-        <Text style={styles.memorySummary} numberOfLines={2}>{item.summary}</Text>
-        <View style={styles.memoryFooter}>
-          <Text style={styles.memoryDate}>{item.dateAdded}</Text>
-          <Text style={[styles.memoryConfidence, { color: item.accentColor }]}>{item.confidence}%</Text>
-        </View>
-      </View>
-    </Pressable>
+    <View style={[styles.editionMark, dark && styles.editionMarkDark]}>
+      <Text style={[styles.editionText, dark && styles.darkText]}>The</Text>
+      <Text style={[styles.editionText, dark && styles.darkText]}>Visual</Text>
+      <Text style={[styles.editionScript, dark && styles.darkText]}>ai</Text>
+      <Text style={[styles.editionText, dark && styles.darkText]}>Edition</Text>
+    </View>
   );
 }
 
-function CollectionCard({ item, onPress }: any) {
-  const Icon = iconMap[item.icon] || Code;
+function SideIndex({ dark = false }: { dark?: boolean }) {
   return (
-    <Pressable style={[styles.collectionCard, { backgroundColor: item.bgColor }]} onPress={() => onPress(item.id)}>
-      <View style={styles.collectionTop}>
-        <View style={[styles.collectionIcon, { borderColor: item.accentColor + "55" }]}>
-          <Icon size={20} color={item.accentColor} weight="duotone" />
+    <View style={styles.sideIndex}>
+      {navItems.map((item, i) => (
+        <View key={item} style={styles.sideIndexRow}>
+          <Text style={[styles.sideIndexText, dark && styles.sideIndexTextDark, i > 0 && styles.mutedIndex]}>
+            {item}
+          </Text>
+          <View style={[styles.indexRule, dark && styles.indexRuleDark]} />
+          <Text style={[styles.romanText, dark && styles.romanTextDark]}>{roman[i]}</Text>
         </View>
-        <Text style={[styles.collectionCount, { color: item.accentColor }]}>{item.count}</Text>
+      ))}
+    </View>
+  );
+}
+
+function FloatingMemory({ item, index }: { item: (typeof mockMemories)[0]; index: number }) {
+  const Icon = iconMap[item.icon] || Brain;
+  const rotate = ["-10deg", "8deg", "-4deg", "12deg"][index % 4];
+  const positions = [
+    { left: 10, top: 28 },
+    { right: 14, top: 18 },
+    { left: 38, top: 186 },
+    { right: 24, top: 182 },
+  ];
+  return (
+    <View style={[styles.floatingMemory, positions[index], { backgroundColor: item.bgColor, transform: [{ rotate }] }]}>
+      <Icon size={22} color={item.accentColor} weight="duotone" />
+      <Text style={[styles.floatingMemoryTitle, { color: item.accentColor }]} numberOfLines={2}>
+        {item.title}
+      </Text>
+    </View>
+  );
+}
+
+function ProductCard({ title, subtitle, metric, accent }: { title: string; subtitle: string; metric: string; accent: string }) {
+  return (
+    <View style={styles.productCard}>
+      <View style={styles.productTop}>
+        <Text style={styles.productTitle}>{title}</Text>
+        <View style={[styles.productBadge, { backgroundColor: accent }]}>
+          <Text style={styles.productBadgeText}>New</Text>
+        </View>
       </View>
-      <Text style={[styles.collectionName, { color: item.accentColor }]} numberOfLines={2}>{item.name}</Text>
-      <Text style={styles.collectionInsight} numberOfLines={2}>{item.insight}</Text>
-      <View style={styles.thumbRail}>
-        {[0, 1, 2].map((n) => (
-          <View key={n} style={[styles.thumbDot, { backgroundColor: item.accentColor, opacity: 0.9 - n * 0.22 }]} />
-        ))}
+      <View style={[styles.orb, { borderColor: accent }]}>
+        <View style={[styles.orbInner, { backgroundColor: accent }]} />
       </View>
-    </Pressable>
+      <Text style={styles.productMetric}>{metric}</Text>
+      <Text style={styles.productSubtitle}>{subtitle}</Text>
+    </View>
   );
 }
 
 export default function HomeScreen() {
   const router = useRouter();
-  const recentMemories = mockMemories.slice(0, 6);
-  const topCollections = collections.slice(0, 8);
+  const featured = [mockMemories[4], mockMemories[0], mockMemories[12], mockMemories[17]];
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <ScrollView
-        style={styles.scroll}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 108 }}
-      >
-        <View style={styles.backdropA} />
-        <View style={styles.backdropB} />
-
-        <View style={styles.header}>
-          <View>
-            <Text style={styles.kicker}>PRIVATE MEMORY LAYER</Text>
-            <Text style={styles.appName}>MemoryOS</Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        <View style={styles.blackHero}>
+          <Geometry />
+          <View style={styles.topNav}>
+            <Text style={styles.navBrand}>MemoryOS Editions</Text>
+            <Pressable style={styles.navSearch} onPress={() => router.push("/(tabs)/search")}>
+              <Text style={styles.navSearchText}>Search</Text>
+              <MagnifyingGlass size={13} color={CREAM} />
+            </Pressable>
           </View>
-          <Pressable style={styles.headerIconBtn} onPress={() => router.push("/(tabs)/settings")}>
-            <Brain size={22} color={COLORS.lime} weight="duotone" />
-          </Pressable>
+
+          <EditionMark />
+
+          <View style={styles.objectStage}>
+            <FloatingMemory item={featured[0]} index={0} />
+            <FloatingMemory item={featured[1]} index={1} />
+            <FloatingMemory item={featured[2]} index={2} />
+            <FloatingMemory item={featured[3]} index={3} />
+            <View style={styles.marbleGlobe}>
+              <View style={styles.globeBandA} />
+              <View style={styles.globeBandB} />
+            </View>
+          </View>
+
+          <Text style={styles.giantWord}>Memory</Text>
+          <View style={styles.heroCopy}>
+            <Text style={styles.heroSerif}>
+              Turn visual clutter into a living index of what you saved.
+            </Text>
+            <Pressable style={styles.blackCta} onPress={() => router.push("/demo")}>
+              <Text style={styles.blackCtaText}>Run 30s demo</Text>
+              <ArrowRight size={14} color={BLACK} weight="bold" />
+            </Pressable>
+          </View>
+          <SideIndex />
         </View>
 
-        <Pressable style={styles.commandBar} onPress={() => router.push("/(tabs)/search")}>
-          <MagnifyingGlass size={17} color={COLORS.textSecondary} />
-          <Text style={styles.commandText}>Search your visual memory...</Text>
-          <View style={styles.commandKey}>
-            <Text style={styles.commandKeyText}>AI</Text>
-          </View>
-        </Pressable>
-
-        <View style={styles.heroCard}>
-          <View style={styles.heroGrid} pointerEvents="none">
-            {Array.from({ length: 24 }).map((_, i) => <View key={i} style={styles.heroGridDot} />)}
-          </View>
-          <View style={styles.heroTop}>
-            <View style={styles.badge}>
-              <Sparkle size={11} color={COLORS.lime} weight="fill" />
-              <Text style={styles.badgeText}>THIS WEEK</Text>
-            </View>
-            <Text style={styles.heroMetric}>14 ideas found</Text>
-          </View>
-          <Text style={styles.heroTitle}>Your screenshots finally make sense.</Text>
-          <Text style={styles.heroSub}>
-            MemoryOS reads saved screenshots, detects intent, and turns camera roll chaos into searchable knowledge.
+        <View style={styles.creamPanel}>
+          <Geometry dark />
+          <EditionMark dark />
+          <Text style={styles.panelKicker}>Insights, proactively delivered</Text>
+          <Text style={styles.panelTitle}>
+            Your screenshots finally have memory.
           </Text>
-          <View style={styles.heroStats}>
-            <View>
-              <Text style={styles.statNumber}>128</Text>
-              <Text style={styles.statLabel}>indexed</Text>
+          <Text style={styles.panelBody}>
+            MemoryOS reads saved images, extracts intent, and resurfaces the ideas,
+            receipts, code, and notes that usually disappear into the camera roll.
+          </Text>
+
+          <View style={styles.showcaseWrap}>
+            <View style={styles.skateObject}>
+              <View style={styles.skateWheelLeft} />
+              <View style={styles.skateWheelRight} />
+              <Text style={styles.skateText}>AI</Text>
             </View>
-            <View style={styles.statDivider} />
-            <View>
-              <Text style={[styles.statNumber, { color: COLORS.cyan }]}>42%</Text>
-              <Text style={styles.statLabel}>screenshots</Text>
-            </View>
-            <View style={styles.statDivider} />
-            <View>
-              <Text style={[styles.statNumber, { color: COLORS.amber }]}>12</Text>
-              <Text style={styles.statLabel}>resurfaced</Text>
+            <ProductCard
+              title="Pulse"
+              subtitle="14 startup ideas found this week"
+              metric="128 indexed"
+              accent={ROSE}
+            />
+            <View style={styles.salesCard}>
+              <Text style={styles.salesLabel}>Visual recall</Text>
+              <Text style={styles.salesValue}>92% faster</Text>
+              <Text style={styles.salesDelta}>+ semantic search</Text>
             </View>
           </View>
-          <Pressable style={styles.primaryButton} onPress={() => router.push("/demo")}>
-            <Scan size={16} color="#050604" weight="bold" />
-            <Text style={styles.primaryButtonText}>Run the 30s Demo</Text>
-          </Pressable>
         </View>
 
-        <Pressable style={styles.privacyStrip} onPress={() => router.push("/(tabs)/settings")}>
-          <LockKey size={15} color={COLORS.lime} weight="duotone" />
-          <Text style={styles.privacyText}>Local-first demo. No real gallery access. No cloud upload.</Text>
-        </Pressable>
-
-        <SectionHeader title="RECENT IMPORTS" action="See all" onPress={() => router.push("/(tabs)/collections")} />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
-          {recentMemories.map((item) => (
-            <MemoryTile key={item.id} item={item} onPress={(id: string) => router.push(`/memory/${id}`)} />
-          ))}
-        </ScrollView>
-
-        <SectionHeader title="SMART COLLECTIONS" action="Open" onPress={() => router.push("/(tabs)/collections")} />
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.horizontalScroll}>
-          {topCollections.map((item) => (
-            <CollectionCard key={item.id} item={item} onPress={(id: string) => router.push(`/collection/${id}`)} />
-          ))}
-        </ScrollView>
-
-        <SectionHeader title="FORGOTTEN GEMS" />
-        <View style={styles.gemsCard}>
-          <View style={styles.gemsHeader}>
-            <Text style={styles.gemsTitle}>Ideas you saved, then abandoned.</Text>
-            <View style={styles.gemsBadge}>
-              <Text style={styles.gemsBadgeText}>12 RESURFACED</Text>
-            </View>
+        <View style={styles.operationsPanel}>
+          <Geometry />
+          <Text style={styles.operationWord}>Operations</Text>
+          <Text style={styles.operationSerif}>
+            Improve everyday workflows with automatic screenshot sorting and forgotten-gem recovery.
+          </Text>
+          <View style={styles.collectionPreview}>
+            {collections.slice(0, 6).map((collection, i) => (
+              <Pressable
+                key={collection.id}
+                style={[styles.indexCard, { borderColor: collection.accentColor + "55" }]}
+                onPress={() => router.push(`/collection/${collection.id}`)}
+              >
+                <Text style={styles.indexNumeral}>{roman[i]}</Text>
+                <Text style={[styles.indexName, { color: collection.accentColor }]}>{collection.name}</Text>
+                <Text style={styles.indexMeta}>{collection.count} items</Text>
+              </Pressable>
+            ))}
           </View>
-          {[
-            ["B2B data marketplace idea", "Saved 92 days ago"],
-            ["Feynman quote on learning", "Starred, never revisited"],
-            ["Tonkotsu ramen recipe", "Still waiting for the weekend"],
-          ].map(([title, meta], index) => (
-            <View key={title} style={styles.gemRow}>
-              <View style={[styles.gemSpark, { backgroundColor: [COLORS.amber, COLORS.cyan, COLORS.lime][index] }]} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.gemTitle}>{title}</Text>
-                <Text style={styles.gemMeta}>{meta}</Text>
-              </View>
-            </View>
-          ))}
-          <Pressable style={styles.gemsButton} onPress={() => router.push("/(tabs)/insights")}>
-            <Text style={styles.gemsButtonText}>Explore Forgotten Gems</Text>
-            <ArrowRight size={13} color={COLORS.amber} weight="bold" />
-          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -224,277 +219,213 @@ export default function HomeScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#070806" },
-  scroll: { flex: 1 },
-  backdropA: {
-    position: "absolute",
-    top: -80,
-    right: -70,
-    width: 210,
-    height: 210,
-    borderRadius: 105,
-    backgroundColor: "rgba(200,255,46,0.08)",
+  container: { flex: 1, backgroundColor: BLACK },
+  content: { paddingBottom: 88 },
+  blackHero: {
+    minHeight: 720,
+    backgroundColor: BLACK,
+    overflow: "hidden",
+    paddingHorizontal: 18,
+    paddingTop: 8,
   },
-  backdropB: {
-    position: "absolute",
-    top: 250,
-    left: -80,
-    width: 190,
-    height: 190,
-    borderRadius: 95,
-    backgroundColor: "rgba(53,213,213,0.06)",
+  topNav: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingTop: 8,
   },
-  header: {
+  navBrand: { color: CREAM, fontSize: 14, fontWeight: "800" },
+  navSearch: { flexDirection: "row", alignItems: "center", gap: 6 },
+  navSearchText: { color: CREAM, fontSize: 13, fontWeight: "700" },
+  editionMark: { position: "absolute", top: 56, left: 18, zIndex: 3 },
+  editionMarkDark: { top: 30 },
+  editionText: { color: CREAM, fontSize: 21, lineHeight: 19, fontWeight: "900" },
+  editionScript: {
+    position: "absolute",
+    left: 36,
+    top: 19,
+    color: CREAM,
+    fontSize: 18,
+    lineHeight: 18,
+    fontFamily: SERIF,
+    fontStyle: "italic",
+  },
+  darkText: { color: INK },
+  objectStage: {
+    position: "relative",
+    height: 310,
+    marginTop: 96,
+  },
+  floatingMemory: {
+    position: "absolute",
+    width: 112,
+    minHeight: 116,
+    borderWidth: 1,
+    borderColor: "rgba(232,228,214,0.24)",
+    padding: 12,
+    justifyContent: "space-between",
+  },
+  floatingMemoryTitle: { fontSize: 13, lineHeight: 15, fontWeight: "900" },
+  marbleGlobe: {
+    position: "absolute",
+    left: 115,
+    top: 114,
+    width: 142,
+    height: 142,
+    borderRadius: 71,
+    backgroundColor: "#EAE0CC",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.55)",
+    overflow: "hidden",
+  },
+  globeBandA: {
+    position: "absolute",
+    left: -20,
+    top: 40,
+    width: 180,
+    height: 18,
+    backgroundColor: "rgba(241,58,139,0.35)",
+    transform: [{ rotate: "-18deg" }],
+  },
+  globeBandB: {
+    position: "absolute",
+    left: -10,
+    top: 82,
+    width: 180,
+    height: 14,
+    backgroundColor: "rgba(114,215,208,0.35)",
+    transform: [{ rotate: "22deg" }],
+  },
+  giantWord: {
+    position: "absolute",
+    top: 320,
+    left: 20,
+    color: CREAM,
+    fontSize: 78,
+    lineHeight: 82,
+    fontWeight: "900",
+    letterSpacing: -4,
+  },
+  heroCopy: { marginTop: 20, paddingLeft: 84 },
+  heroSerif: {
+    color: CREAM,
+    fontFamily: SERIF,
+    fontSize: 31,
+    lineHeight: 32,
+  },
+  blackCta: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    paddingBottom: 14,
+    justifyContent: "center",
+    gap: 8,
+    alignSelf: "flex-start",
+    marginTop: 18,
+    backgroundColor: CREAM,
+    borderRadius: 999,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
   },
-  kicker: {
-    fontSize: 10,
-    fontWeight: "800",
-    letterSpacing: 1.8,
-    color: COLORS.lime,
-    marginBottom: 3,
+  blackCtaText: { color: BLACK, fontSize: 13, fontWeight: "900" },
+  sideIndex: { position: "absolute", left: 18, bottom: 34, width: 145 },
+  sideIndexRow: { flexDirection: "row", alignItems: "center" },
+  sideIndexText: { width: 78, color: CREAM, fontSize: 14, lineHeight: 15, fontWeight: "900" },
+  sideIndexTextDark: { color: INK },
+  mutedIndex: { opacity: 0.54 },
+  indexRule: { flex: 1, height: 1, backgroundColor: "rgba(232,228,214,0.30)" },
+  indexRuleDark: { backgroundColor: "rgba(24,24,17,0.28)" },
+  romanText: { width: 22, textAlign: "right", color: CREAM, fontFamily: SERIF, fontSize: 12, opacity: 0.72 },
+  romanTextDark: { color: INK },
+  creamPanel: {
+    minHeight: 620,
+    backgroundColor: CREAM,
+    paddingHorizontal: 22,
+    paddingTop: 128,
+    overflow: "hidden",
   },
-  appName: {
-    fontSize: 34,
-    fontWeight: "900",
-    color: "#F8F1E7",
-  },
-  headerIconBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: "rgba(245,240,232,0.06)",
-    borderWidth: 1,
-    borderColor: "rgba(245,240,232,0.12)",
+  panelKicker: { color: INK, fontSize: 16, fontWeight: "900", marginBottom: 10 },
+  panelTitle: { color: INK, fontFamily: SERIF, fontSize: 42, lineHeight: 43, maxWidth: 330 },
+  panelBody: { color: INK, fontSize: 15, lineHeight: 20, marginTop: 14, maxWidth: 320, opacity: 0.82 },
+  showcaseWrap: { height: 300, marginTop: 34 },
+  skateObject: {
+    position: "absolute",
+    left: 8,
+    top: 68,
+    width: 66,
+    height: 190,
+    borderRadius: 34,
+    backgroundColor: "#C9C2A7",
+    transform: [{ rotate: "22deg" }],
     alignItems: "center",
     justifyContent: "center",
   },
-  commandBar: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    marginHorizontal: 20,
-    marginBottom: 14,
-    backgroundColor: "rgba(17,18,15,0.92)",
-    borderWidth: 1,
-    borderColor: "rgba(245,240,232,0.12)",
+  skateWheelLeft: {
+    position: "absolute",
+    top: 12,
+    width: 20,
+    height: 20,
     borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    backgroundColor: ROSE,
   },
-  commandText: { flex: 1, color: COLORS.textSecondary, fontSize: 14 },
-  commandKey: {
-    borderWidth: 1,
-    borderColor: COLORS.lime + "44",
-    borderRadius: 5,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+  skateWheelRight: {
+    position: "absolute",
+    bottom: 12,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: CYAN,
   },
-  commandKeyText: { color: COLORS.lime, fontSize: 10, fontWeight: "800" },
-  heroCard: {
-    marginHorizontal: 20,
-    marginBottom: 12,
-    borderRadius: 12,
-    overflow: "hidden",
-    backgroundColor: "#10120D",
+  skateText: { color: INK, fontSize: 30, fontWeight: "900" },
+  productCard: {
+    position: "absolute",
+    right: 0,
+    top: 28,
+    width: 238,
+    minHeight: 222,
+    backgroundColor: "#FAF9F2",
     borderWidth: 1,
-    borderColor: "rgba(245,240,232,0.12)",
+    borderColor: "rgba(24,24,17,0.12)",
     padding: 18,
   },
-  heroGrid: {
-    position: "absolute",
-    right: -8,
-    top: 8,
-    width: 120,
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    opacity: 0.23,
-  },
-  heroGridDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 2,
-    backgroundColor: COLORS.lime,
-  },
-  heroTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 16 },
-  badge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    backgroundColor: "rgba(200,255,46,0.10)",
-    borderWidth: 1,
-    borderColor: "rgba(200,255,46,0.28)",
-    borderRadius: 5,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-  },
-  badgeText: { color: COLORS.lime, fontSize: 10, fontWeight: "900", letterSpacing: 1.3 },
-  heroMetric: { color: COLORS.textTertiary, fontSize: 12, fontWeight: "700" },
-  heroTitle: {
-    maxWidth: 260,
-    color: "#F8F1E7",
-    fontSize: 29,
-    lineHeight: 32,
-    fontWeight: "900",
-    marginBottom: 9,
-  },
-  heroSub: { color: COLORS.textSecondary, fontSize: 14, lineHeight: 20, marginBottom: 18 },
-  heroStats: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: "rgba(245,240,232,0.08)",
-    paddingVertical: 12,
-    marginBottom: 16,
-  },
-  statNumber: { color: "#F8F1E7", fontSize: 22, fontWeight: "900" },
-  statLabel: { color: COLORS.textTertiary, fontSize: 10, fontWeight: "700", textTransform: "uppercase" },
-  statDivider: { width: 1, height: 34, backgroundColor: "rgba(245,240,232,0.10)" },
-  primaryButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: COLORS.lime,
-    borderRadius: 9,
-    paddingVertical: 13,
-    shadowColor: COLORS.lime,
-    shadowOpacity: 0.38,
-    shadowRadius: 14,
-  },
-  primaryButtonText: { color: "#050604", fontSize: 14, fontWeight: "900" },
-  privacyStrip: {
-    marginHorizontal: 20,
-    marginBottom: 24,
-    flexDirection: "row",
-    gap: 9,
-    alignItems: "center",
-    borderRadius: 9,
-    borderWidth: 1,
-    borderColor: "rgba(200,255,46,0.16)",
-    backgroundColor: "rgba(200,255,46,0.05)",
-    paddingHorizontal: 12,
-    paddingVertical: 11,
-  },
-  privacyText: { flex: 1, color: COLORS.textSecondary, fontSize: 12, lineHeight: 16 },
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    color: COLORS.textTertiary,
-    fontSize: 10,
-    fontWeight: "900",
-    letterSpacing: 2.2,
-  },
-  sectionAction: { flexDirection: "row", alignItems: "center", gap: 4 },
-  sectionActionText: { color: COLORS.lime, fontSize: 12, fontWeight: "800" },
-  horizontalScroll: { paddingHorizontal: 20, paddingBottom: 24, gap: 12 },
-  memoryTile: {
-    width: 222,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "rgba(245,240,232,0.10)",
-    overflow: "hidden",
-  },
-  memoryVisual: {
-    height: 76,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.035)",
-    position: "relative",
-  },
-  scanLine: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-    bottom: 16,
-    height: 2,
-    opacity: 0.35,
-  },
-  memoryMeta: { padding: 12 },
-  microPill: {
-    alignSelf: "flex-start",
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 6,
-    paddingVertical: 3,
-    marginBottom: 8,
-  },
-  microPillText: { fontSize: 9, fontWeight: "900", letterSpacing: 1 },
-  memoryTitle: { fontSize: 15, fontWeight: "900", marginBottom: 5 },
-  memorySummary: { color: COLORS.textSecondary, fontSize: 12, lineHeight: 17, minHeight: 34 },
-  memoryFooter: { flexDirection: "row", justifyContent: "space-between", marginTop: 10 },
-  memoryDate: { color: COLORS.textTertiary, fontSize: 10, fontWeight: "700" },
-  memoryConfidence: { fontSize: 11, fontWeight: "900" },
-  collectionCard: {
+  productTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  productTitle: { color: INK, fontSize: 18, fontWeight: "900" },
+  productBadge: { borderRadius: 999, paddingHorizontal: 9, paddingVertical: 4 },
+  productBadgeText: { color: "#fff", fontSize: 11, fontWeight: "900" },
+  orb: {
+    alignSelf: "center",
+    marginVertical: 16,
     width: 128,
-    minHeight: 148,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: "rgba(245,240,232,0.10)",
-    padding: 13,
-  },
-  collectionTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 12 },
-  collectionIcon: {
-    width: 38,
-    height: 38,
-    borderRadius: 9,
-    borderWidth: 1,
+    height: 96,
+    borderRadius: 48,
+    borderWidth: 18,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.04)",
   },
-  collectionCount: { fontSize: 18, fontWeight: "900" },
-  collectionName: { fontSize: 14, fontWeight: "900", lineHeight: 17, minHeight: 34 },
-  collectionInsight: { color: COLORS.textSecondary, fontSize: 11, lineHeight: 15, marginTop: 6 },
-  thumbRail: { flexDirection: "row", gap: 4, marginTop: "auto", paddingTop: 12 },
-  thumbDot: { width: 17, height: 5, borderRadius: 3 },
-  gemsCard: {
-    marginHorizontal: 20,
-    marginBottom: 18,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "rgba(245,166,35,0.24)",
-    backgroundColor: "rgba(245,166,35,0.06)",
-    padding: 16,
+  orbInner: { width: 34, height: 34, borderRadius: 17 },
+  productMetric: { color: INK, fontSize: 24, fontWeight: "900" },
+  productSubtitle: { color: INK, opacity: 0.58, fontSize: 13, lineHeight: 17, marginTop: 4 },
+  salesCard: {
+    position: "absolute",
+    right: 8,
+    top: 0,
+    backgroundColor: "#fff",
+    padding: 12,
+    minWidth: 136,
   },
-  gemsHeader: { marginBottom: 14 },
-  gemsTitle: { color: "#F8F1E7", fontSize: 18, fontWeight: "900", marginBottom: 8 },
-  gemsBadge: {
-    alignSelf: "flex-start",
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: COLORS.amber + "55",
-    paddingHorizontal: 7,
-    paddingVertical: 4,
-  },
-  gemsBadgeText: { color: COLORS.amber, fontSize: 9, fontWeight: "900", letterSpacing: 1 },
-  gemRow: { flexDirection: "row", alignItems: "center", gap: 11, paddingVertical: 9 },
-  gemSpark: { width: 8, height: 8, borderRadius: 2, transform: [{ rotate: "45deg" }] },
-  gemTitle: { color: COLORS.textPrimary, fontSize: 13, fontWeight: "800" },
-  gemMeta: { color: COLORS.textTertiary, fontSize: 12, marginTop: 2 },
-  gemsButton: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: 7,
-    borderWidth: 1,
-    borderColor: COLORS.amber + "55",
-    borderRadius: 9,
-    paddingVertical: 11,
-    marginTop: 10,
-  },
-  gemsButtonText: { color: COLORS.amber, fontSize: 13, fontWeight: "900" },
+  salesLabel: { color: INK, fontSize: 11, fontWeight: "700" },
+  salesValue: { color: INK, fontSize: 20, fontWeight: "900", marginTop: 6 },
+  salesDelta: { color: "#008060", fontSize: 12, fontWeight: "900", marginTop: 3 },
+  operationsPanel: { minHeight: 600, backgroundColor: BLACK, paddingHorizontal: 20, paddingTop: 58, overflow: "hidden" },
+  operationWord: { color: CREAM, fontSize: 62, lineHeight: 66, fontWeight: "900", letterSpacing: -3 },
+  operationSerif: { color: CREAM, fontFamily: SERIF, fontSize: 29, lineHeight: 31, marginTop: 180 },
+  collectionPreview: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 28 },
+  indexCard: { width: "48%", minHeight: 124, borderWidth: 1, padding: 12, backgroundColor: "rgba(232,228,214,0.05)" },
+  indexNumeral: { color: CREAM, fontFamily: SERIF, fontSize: 13, opacity: 0.56 },
+  indexName: { fontSize: 18, lineHeight: 20, fontWeight: "900", marginTop: 18 },
+  indexMeta: { color: CREAM, opacity: 0.56, fontSize: 12, marginTop: 8 },
+  vLine: { position: "absolute", top: 0, bottom: 0, width: 1 },
+  hLine: { position: "absolute", left: 0, right: 0, height: 1 },
+  circleOne: { position: "absolute", width: 520, height: 520, borderRadius: 260, borderWidth: 1, top: 42, left: -78 },
+  circleTwo: { position: "absolute", width: 520, height: 520, borderRadius: 260, borderWidth: 1, top: 360, left: -70 },
+  diagonalA: { position: "absolute", top: 120, left: -40, width: 520, height: 1, transform: [{ rotate: "29deg" }] },
+  diagonalB: { position: "absolute", top: 360, left: -80, width: 620, height: 1, transform: [{ rotate: "-31deg" }] },
 });

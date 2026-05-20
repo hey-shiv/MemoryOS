@@ -1,499 +1,228 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  View,
-  Text,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
-  Pressable,
+  Text,
   TextInput,
-  Platform,
-  KeyboardAvoidingView,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import {
+  ArrowRight,
+  Brain,
+  Code,
+  ForkKnife,
   MagnifyingGlass,
+  Phone,
+  Quotes,
+  Receipt,
+  Rocket,
+  ShieldWarning,
   X,
+} from "phosphor-react-native";
+import { COLORS, mockMemories, searchSuggestions } from "../../lib/mockData";
+
+const SERIF = "Georgia";
+const BLACK = "#050503";
+const CREAM = "#E8E4D6";
+const INK = "#181811";
+const HAIR = "rgba(24,24,17,0.12)";
+
+const iconMap: Record<string, React.ComponentType<any>> = {
   Code,
   Rocket,
   ForkKnife,
   Receipt,
   Quotes,
   Phone,
-  MapPin,
   ShieldWarning,
-  ArrowRight,
-  Sparkle,
-  Brain,
-} from "phosphor-react-native";
-import { COLORS, mockMemories, searchSuggestions } from "../../lib/mockData";
-
-const iconMap: Record<string, React.ComponentType<any>> = {
-  Code, Rocket, ForkKnife, Receipt, Quotes, Phone, MapPin, ShieldWarning,
 };
 
-// ─── Result Card ──────────────────────────────────────────────────────────────
-function SearchResultCard({ item }: { item: (typeof mockMemories)[0] }) {
-  const router = useRouter();
-  const IconComp = iconMap[item.icon] || Code;
+function Geometry() {
   return (
-    <Pressable
-      style={[styles.resultCard, { backgroundColor: item.bgColor }]}
-      onPress={() => router.push(`/memory/${item.id}`)}
-      android_ripple={{ color: "rgba(255,255,255,0.04)" }}
-    >
-      <View style={[styles.resultThumb, { borderColor: item.accentColor + "30" }]}>
-        <IconComp size={22} color={item.accentColor} weight="duotone" />
-        {item.isSensitive && (
-          <View style={styles.sensitiveOverlay}>
-            <ShieldWarning size={12} color={COLORS.red} weight="fill" />
-          </View>
-        )}
-      </View>
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      {[0, 1, 2, 3].map((i) => <View key={i} style={[styles.vLine, { left: `${16 + i * 24}%` }]} />)}
+      <View style={styles.bigCircle} />
+      <View style={styles.diagonal} />
+    </View>
+  );
+}
 
-      <View style={styles.resultBody}>
-        <View style={styles.resultBadgeRow}>
-          <View style={[styles.catBadge, { borderColor: item.accentColor + "40" }]}>
-            <Text style={[styles.catBadgeText, { color: item.accentColor }]}>
-              {item.category.toUpperCase()}
-            </Text>
-          </View>
-          <View style={[styles.confBadge, { borderColor: item.accentColor + "40" }]}>
-            <Sparkle size={9} color={item.accentColor} weight="fill" />
-            <Text style={[styles.confBadgeText, { color: item.accentColor }]}>
-              {item.confidence}%
-            </Text>
-          </View>
+function ResultCard({ item }: { item: (typeof mockMemories)[0] }) {
+  const router = useRouter();
+  const Icon = iconMap[item.icon] || Brain;
+  return (
+    <Pressable style={styles.resultCard} onPress={() => router.push(`/memory/${item.id}`)}>
+      <View style={[styles.resultArtifact, { backgroundColor: item.bgColor }]}>
+        <Icon size={22} color={item.accentColor} weight="duotone" />
+      </View>
+      <View style={{ flex: 1 }}>
+        <View style={styles.resultTop}>
+          <Text style={styles.resultRoman}>I</Text>
+          <Text style={styles.resultCategory}>{item.category}</Text>
+          <Text style={styles.resultConfidence}>{item.confidence}%</Text>
         </View>
-        <Text style={[styles.resultTitle, { color: item.textColor }]} numberOfLines={1}>
-          {item.title}
-        </Text>
-        <Text style={styles.resultSummary} numberOfLines={2}>
-          {item.summary}
-        </Text>
-        <View style={styles.resultTagRow}>
-          {item.tags.slice(0, 3).map((tag) => (
-            <View key={tag} style={styles.tag}>
-              <Text style={styles.tagText}>{tag}</Text>
-            </View>
-          ))}
-        </View>
-        <Text style={styles.matchReason}>
-          ↳ Matched: {item.tags[0]}{item.tags[1] ? ` · ${item.tags[1]}` : ""}
-        </Text>
+        <Text style={styles.resultTitle}>{item.title}</Text>
+        <Text style={styles.resultSummary} numberOfLines={2}>{item.summary}</Text>
       </View>
     </Pressable>
   );
 }
 
-// ─── Screen ───────────────────────────────────────────────────────────────────
 export default function SearchScreen() {
   const params = useLocalSearchParams<{ q?: string }>();
   const [query, setQuery] = useState(params.q ?? "");
   const [results, setResults] = useState<typeof mockMemories>([]);
-  const [searching, setSearching] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
-  // Run search on mount if query param passed
-  useEffect(() => {
-    if (params.q) {
-      runSearch(params.q);
-    }
-  }, []);
-
   const runSearch = (text: string) => {
-    if (text.length > 1) {
-      setSearching(true);
-      setTimeout(() => {
-        const filtered = mockMemories.filter(
-          (m) =>
-            m.title.toLowerCase().includes(text.toLowerCase()) ||
-            m.category.toLowerCase().includes(text.toLowerCase()) ||
-            m.tags.some((t) => t.toLowerCase().includes(text.toLowerCase())) ||
-            m.summary.toLowerCase().includes(text.toLowerCase())
-        );
-        setResults(filtered.length > 0 ? filtered : mockMemories.slice(0, 6));
-        setSearching(false);
-      }, 380);
-    } else {
+    if (text.length <= 1) {
       setResults([]);
-      setSearching(false);
+      return;
     }
+    const q = text.toLowerCase();
+    const filtered = mockMemories.filter(
+      (m) =>
+        m.title.toLowerCase().includes(q) ||
+        m.category.toLowerCase().includes(q) ||
+        m.tags.some((tag) => tag.toLowerCase().includes(q)) ||
+        m.summary.toLowerCase().includes(q) ||
+        m.ocrText?.toLowerCase().includes(q)
+    );
+    setResults(filtered.length > 0 ? filtered : mockMemories.slice(3, 8));
   };
+
+  useEffect(() => {
+    if (params.q) runSearch(params.q);
+  }, []);
 
   const handleSearch = (text: string) => {
     setQuery(text);
     runSearch(text);
   };
 
-  const handleSuggestion = (text: string) => {
-    setQuery(text);
-    runSearch(text);
-    inputRef.current?.focus();
-  };
-
-  const clearSearch = () => {
-    setQuery("");
-    setResults([]);
-    inputRef.current?.focus();
-  };
-
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-      >
-        {/* ── Header ────────────────────────────────────────────────────── */}
-        <View style={styles.header}>
-          <Text style={styles.screenTitle}>Search</Text>
-          <Text style={styles.screenSubtitle}>Natural language memory recall</Text>
-        </View>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+          <View style={styles.hero}>
+            <Geometry />
+            <Text style={styles.edition}>The{"\n"}Recall{"\n"}Edition</Text>
+            <Text style={styles.giant}>Search</Text>
+            <Text style={styles.serifLine}>Ask for what you saved, not where you saved it.</Text>
+          </View>
 
-        {/* ── Search Input ─────────────────────────────────────────────── */}
-        <View style={styles.searchRow}>
-          <View style={[styles.searchBar, query.length > 0 && styles.searchBarActive]}>
-            <Brain
-              size={16}
-              color={query.length > 0 ? COLORS.lime : COLORS.textTertiary}
-              weight={query.length > 0 ? "duotone" : "regular"}
-            />
-            <TextInput
-              ref={inputRef}
-              style={styles.searchInput}
-              placeholder="Try: show all AI startup ideas"
-              placeholderTextColor={COLORS.textTertiary}
-              value={query}
-              onChangeText={handleSearch}
-              selectionColor={COLORS.lime}
-              returnKeyType="search"
-              autoCorrect={false}
-            />
-            {query.length > 0 && (
-              <Pressable onPress={clearSearch} hitSlop={8}>
-                <X size={16} color={COLORS.textTertiary} />
-              </Pressable>
+          <View style={styles.searchBoard}>
+            <View style={styles.searchBar}>
+              <MagnifyingGlass size={16} color={INK} />
+              <TextInput
+                ref={inputRef}
+                style={styles.searchInput}
+                placeholder="show all AI startup ideas"
+                placeholderTextColor="rgba(24,24,17,0.42)"
+                value={query}
+                onChangeText={handleSearch}
+                selectionColor={INK}
+                autoCorrect={false}
+              />
+              {query.length > 0 && (
+                <Pressable onPress={() => handleSearch("")}>
+                  <X size={16} color={INK} />
+                </Pressable>
+              )}
+            </View>
+
+            {query.length === 0 ? (
+              <View style={styles.suggestions}>
+                {searchSuggestions.slice(0, 6).map((suggestion, i) => {
+                  const Icon = iconMap[suggestion.icon] || Brain;
+                  return (
+                    <Pressable key={suggestion.id} style={styles.suggestionRow} onPress={() => handleSearch(suggestion.text)}>
+                      <Text style={styles.suggestionRoman}>{["I", "II", "III", "IV", "V", "VI"][i]}</Text>
+                      <Icon size={16} color={INK} />
+                      <Text style={styles.suggestionText}>{suggestion.text}</Text>
+                      <ArrowRight size={13} color={INK} />
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : (
+              <View style={styles.results}>
+                <Text style={styles.resultsLabel}>{results.length} memories matched</Text>
+                {results.map((item) => <ResultCard key={item.id} item={item} />)}
+              </View>
             )}
           </View>
-        </View>
-
-        <ScrollView
-          style={styles.scroll}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          contentContainerStyle={{ paddingBottom: 24 }}
-        >
-          {/* Searching indicator */}
-          {searching && (
-            <View style={styles.searchingRow}>
-              <Sparkle size={13} color={COLORS.lime} weight="fill" />
-              <Text style={styles.searchingText}>Scanning visual memory…</Text>
-            </View>
-          )}
-
-          {/* Suggestions (empty state) */}
-          {query.length === 0 && !searching && (
-            <>
-              <View style={styles.sectionHeader}>
-                <Text style={styles.sectionTitle}>SUGGESTED SEARCHES</Text>
-              </View>
-              {searchSuggestions.map((s) => {
-                const IconComp = iconMap[s.icon] || Code;
-                return (
-                  <Pressable
-                    key={s.id}
-                    style={styles.suggestionRow}
-                    onPress={() => handleSuggestion(s.text)}
-                    android_ripple={{ color: "rgba(255,255,255,0.04)" }}
-                  >
-                    <View style={styles.suggestionIcon}>
-                      <IconComp size={16} color={COLORS.textSecondary} />
-                    </View>
-                    <Text style={styles.suggestionText}>{s.text}</Text>
-                    <ArrowRight size={14} color={COLORS.textTertiary} />
-                  </Pressable>
-                );
-              })}
-
-              <View style={[styles.sectionHeader, { marginTop: 24 }]}>
-                <Text style={styles.sectionTitle}>RECENT MEMORIES</Text>
-              </View>
-              {mockMemories.slice(0, 3).map((item) => (
-                <SearchResultCard key={item.id} item={item} />
-              ))}
-            </>
-          )}
-
-          {/* Results */}
-          {results.length > 0 && !searching && (
-            <>
-              <View style={styles.resultsMeta}>
-                <Text style={styles.resultsMetaText}>
-                  {results.length} memories matched
-                </Text>
-                <View style={styles.semanticPill}>
-                  <Brain size={10} color={COLORS.lime} weight="fill" />
-                  <Text style={styles.semanticPillText}>Semantic search</Text>
-                </View>
-              </View>
-              {results.map((item) => (
-                <SearchResultCard key={item.id} item={item} />
-              ))}
-            </>
-          )}
-
-          {/* Empty */}
-          {query.length > 1 && results.length === 0 && !searching && (
-            <View style={styles.emptyState}>
-              <MagnifyingGlass size={32} color={COLORS.textTertiary} />
-              <Text style={styles.emptyTitle}>No memories found</Text>
-              <Text style={styles.emptySubtext}>
-                Try a different query or scan new images
-              </Text>
-            </View>
-          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bg },
-  scroll: { flex: 1 },
-
-  header: {
+  container: { flex: 1, backgroundColor: CREAM },
+  content: { paddingBottom: 88 },
+  hero: {
+    height: 360,
+    backgroundColor: CREAM,
+    overflow: "hidden",
     paddingHorizontal: 20,
-    paddingTop: 14,
-    paddingBottom: 14,
+    paddingTop: 18,
   },
-  screenTitle: {
-    fontSize: 30,
-    fontWeight: "800",
-    color: COLORS.textPrimary,
-    letterSpacing: -0.5,
-  },
-  screenSubtitle: {
-    fontSize: 13,
-    color: COLORS.textTertiary,
-    marginTop: 2,
-  },
-
-  searchRow: {
-    paddingHorizontal: 20,
-    marginBottom: 16,
+  edition: { color: INK, fontSize: 20, lineHeight: 18, fontWeight: "900" },
+  giant: { color: INK, fontSize: 76, lineHeight: 80, fontWeight: "900", marginTop: 78, letterSpacing: -4 },
+  serifLine: { color: INK, fontFamily: SERIF, fontSize: 29, lineHeight: 31, marginTop: 10, maxWidth: 330 },
+  searchBoard: {
+    backgroundColor: BLACK,
+    minHeight: 420,
+    paddingHorizontal: 18,
+    paddingTop: 18,
   },
   searchBar: {
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    backgroundColor: COLORS.surface,
+    backgroundColor: CREAM,
     borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 13,
-  },
-  searchBarActive: {
-    borderColor: "rgba(200,241,53,0.3)",
-  },
-  searchInput: {
-    flex: 1,
-    fontSize: 14,
-    color: COLORS.textPrimary,
-    padding: 0,
-  },
-
-  // Searching
-  searchingRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    paddingHorizontal: 20,
+    borderColor: CREAM,
+    paddingHorizontal: 13,
     paddingVertical: 12,
   },
-  searchingText: {
-    fontSize: 13,
-    color: COLORS.textSecondary,
-    fontStyle: "italic",
-  },
-
-  // Section
-  sectionHeader: {
-    paddingHorizontal: 20,
-    marginBottom: 10,
-  },
-  sectionTitle: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: COLORS.textTertiary,
-    letterSpacing: 1.5,
-  },
-
-  // Suggestions
+  searchInput: { flex: 1, padding: 0, color: INK, fontSize: 15, fontWeight: "700" },
+  suggestions: { marginTop: 20, borderTopWidth: 1, borderTopColor: "rgba(232,228,214,0.18)" },
   suggestionRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    paddingHorizontal: 20,
-    paddingVertical: 13,
+    gap: 11,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
+    borderBottomColor: "rgba(232,228,214,0.16)",
+    paddingVertical: 15,
   },
-  suggestionIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: COLORS.surface,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  suggestionText: {
-    flex: 1,
-    fontSize: 14,
-    color: COLORS.textSecondary,
-  },
-
-  // Results
-  resultsMeta: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingBottom: 12,
-  },
-  resultsMetaText: {
-    fontSize: 12,
-    color: COLORS.textTertiary,
-  },
-  semanticPill: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "rgba(200,241,53,0.1)",
-    borderWidth: 1,
-    borderColor: "rgba(200,241,53,0.25)",
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-  },
-  semanticPillText: {
-    fontSize: 10,
-    fontWeight: "700",
-    color: COLORS.lime,
-    letterSpacing: 0.3,
-  },
-
-  // Result card
+  suggestionRoman: { width: 24, color: CREAM, fontFamily: SERIF, opacity: 0.6 },
+  suggestionText: { flex: 1, color: CREAM, fontSize: 15, fontWeight: "800" },
+  results: { marginTop: 18 },
+  resultsLabel: { color: CREAM, fontSize: 12, fontWeight: "900", letterSpacing: 1.4, marginBottom: 12, textTransform: "uppercase" },
   resultCard: {
     flexDirection: "row",
     gap: 12,
-    marginHorizontal: 20,
+    backgroundColor: "rgba(232,228,214,0.06)",
+    borderWidth: 1,
+    borderColor: "rgba(232,228,214,0.18)",
+    padding: 12,
     marginBottom: 10,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 10,
-    padding: 14,
   },
-  resultThumb: {
-    width: 48,
-    height: 48,
-    borderRadius: 10,
-    borderWidth: 1,
-    backgroundColor: "rgba(255,255,255,0.04)",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-  },
-  sensitiveOverlay: {
-    position: "absolute",
-    bottom: -4,
-    right: -4,
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: COLORS.bg,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  resultBody: { flex: 1, gap: 5 },
-  resultBadgeRow: {
-    flexDirection: "row",
-    gap: 6,
-    alignItems: "center",
-  },
-  catBadge: {
-    borderWidth: 1,
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  catBadgeText: {
-    fontSize: 9,
-    fontWeight: "700",
-    letterSpacing: 0.8,
-  },
-  confBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 3,
-    borderWidth: 1,
-    borderRadius: 4,
-    paddingHorizontal: 5,
-    paddingVertical: 2,
-  },
-  confBadgeText: {
-    fontSize: 9,
-    fontWeight: "700",
-  },
-  resultTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    letterSpacing: -0.2,
-  },
-  resultSummary: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-    lineHeight: 17,
-  },
-  resultTagRow: {
-    flexDirection: "row",
-    gap: 4,
-    flexWrap: "wrap",
-  },
-  tag: {
-    backgroundColor: "rgba(255,255,255,0.06)",
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  tagText: { fontSize: 10, color: COLORS.textSecondary },
-  matchReason: {
-    fontSize: 11,
-    color: COLORS.textTertiary,
-    fontStyle: "italic",
-  },
-
-  // Empty
-  emptyState: {
-    alignItems: "center",
-    paddingTop: 60,
-    gap: 10,
-    paddingHorizontal: 40,
-  },
-  emptyTitle: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: COLORS.textSecondary,
-    marginTop: 8,
-  },
-  emptySubtext: {
-    fontSize: 13,
-    color: COLORS.textTertiary,
-    textAlign: "center",
-    lineHeight: 18,
-  },
+  resultArtifact: { width: 54, height: 68, alignItems: "center", justifyContent: "center", transform: [{ rotate: "-3deg" }] },
+  resultTop: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 5 },
+  resultRoman: { color: CREAM, opacity: 0.55, fontFamily: SERIF },
+  resultCategory: { color: CREAM, fontSize: 10, fontWeight: "900", textTransform: "uppercase", flex: 1 },
+  resultConfidence: { color: COLORS.lime, fontSize: 11, fontWeight: "900" },
+  resultTitle: { color: CREAM, fontSize: 17, fontWeight: "900" },
+  resultSummary: { color: "rgba(232,228,214,0.68)", fontSize: 12, lineHeight: 16, marginTop: 4 },
+  vLine: { position: "absolute", top: 0, bottom: 0, width: 1, backgroundColor: HAIR },
+  bigCircle: { position: "absolute", width: 430, height: 430, borderRadius: 215, borderWidth: 1, borderColor: HAIR, top: 6, left: -32 },
+  diagonal: { position: "absolute", width: 520, height: 1, backgroundColor: HAIR, top: 210, left: -60, transform: [{ rotate: "-28deg" }] },
 });

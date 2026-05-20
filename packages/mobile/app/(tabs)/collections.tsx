@@ -1,33 +1,31 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Pressable,
-  useWindowDimensions,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import {
-  Code,
-  Rocket,
   BookOpen,
-  Quotes,
+  Code,
+  FileText,
   ForkKnife,
+  List,
+  MapPin,
+  Quotes,
   Receipt,
+  Rocket,
+  ShieldWarning,
+  Smiley,
+  SquaresFour,
   Student,
   Barbell,
-  MapPin,
-  Smiley,
-  FileText,
-  ShieldWarning,
-  SquaresFour,
-  List,
-  ArrowRight,
-  ShieldCheck,
 } from "phosphor-react-native";
-import { COLORS, collections } from "../../lib/mockData";
+import { collections } from "../../lib/mockData";
+
+const SERIF = "Georgia";
+const BLACK = "#050503";
+const CREAM = "#E8E4D6";
+const INK = "#181811";
+const HAIR = "rgba(24,24,17,0.12)";
+const HAIR_LIGHT = "rgba(232,228,214,0.18)";
 
 const iconMap: Record<string, React.ComponentType<any>> = {
   Code,
@@ -44,66 +42,41 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   ShieldWarning,
 };
 
-const categories = [
-  "All", "Tech", "Business", "Learning",
-  "Lifestyle", "Finance", "Work", "Private", "Fun", "Inspiration",
-];
+const categories = ["All", "Tech", "Business", "Learning", "Lifestyle", "Finance", "Work", "Private"];
+const romans = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
 
-function GridCard({ item, cardWidth, onPress }: any) {
-  const IconComp = iconMap[item.icon] || Code;
+function Geometry({ light = false }: { light?: boolean }) {
+  const color = light ? HAIR_LIGHT : HAIR;
   return (
-    <Pressable
-      style={[styles.gridCard, { backgroundColor: item.bgColor, width: cardWidth }]}
-      onPress={() => onPress(item.id)}
-      android_ripple={{ color: "rgba(255,255,255,0.05)" }}
-    >
-      <View style={styles.gridCardHeader}>
-        <View style={[styles.gridIconWrapper, { borderColor: item.accentColor + "40" }]}>
-          <IconComp size={20} color={item.accentColor} weight="duotone" />
-        </View>
-        {item.id === "sensitive" && (
-          <ShieldCheck size={14} color={COLORS.red} weight="fill" />
-        )}
+    <View style={StyleSheet.absoluteFill} pointerEvents="none">
+      {[0, 1, 2].map((i) => <View key={i} style={[styles.vLine, { left: `${22 + i * 27}%`, backgroundColor: color }]} />)}
+      <View style={[styles.circle, { borderColor: color }]} />
+      <View style={[styles.diagonal, { backgroundColor: color }]} />
+    </View>
+  );
+}
+
+function GridCard({ item, index, width, onPress }: any) {
+  const Icon = iconMap[item.icon] || Code;
+  return (
+    <Pressable style={[styles.card, { width, borderColor: item.accentColor + "66" }]} onPress={() => onPress(item.id)}>
+      <Text style={styles.cardRoman}>{romans[index]}</Text>
+      <View style={[styles.artifact, { backgroundColor: item.bgColor }]}>
+        <Icon size={24} color={item.accentColor} weight="duotone" />
       </View>
-      <Text style={[styles.gridCardName, { color: item.accentColor }]} numberOfLines={1}>
-        {item.name}
-      </Text>
-      <Text style={styles.gridCardCount}>{item.count} items</Text>
-      <Text style={styles.gridCardInsight} numberOfLines={2}>
-        {item.insight}
-      </Text>
+      <Text style={[styles.cardName, { color: item.accentColor }]} numberOfLines={2}>{item.name}</Text>
+      <Text style={styles.cardCount}>{item.count} items</Text>
+      <Text style={styles.cardInsight} numberOfLines={2}>{item.insight}</Text>
     </Pressable>
   );
 }
 
-function ListCard({ item, onPress }: any) {
-  const IconComp = iconMap[item.icon] || Code;
+function ListCard({ item, index, onPress }: any) {
   return (
-    <Pressable
-      style={[styles.listCard, { backgroundColor: item.bgColor }]}
-      onPress={() => onPress(item.id)}
-      android_ripple={{ color: "rgba(255,255,255,0.05)" }}
-    >
-      <View style={[styles.listIconWrapper, { borderColor: item.accentColor + "40" }]}>
-        <IconComp size={22} color={item.accentColor} weight="duotone" />
-      </View>
-      <View style={styles.listCardBody}>
-        <View style={styles.listCardTitleRow}>
-          <Text style={[styles.listCardName, { color: item.accentColor }]} numberOfLines={1}>
-            {item.name}
-          </Text>
-          <View style={[styles.countBadge, { borderColor: item.accentColor + "30" }]}>
-            <Text style={[styles.countBadgeText, { color: item.accentColor }]}>
-              {item.count}
-            </Text>
-          </View>
-        </View>
-        <Text style={styles.listCardInsight} numberOfLines={1}>
-          {item.insight}
-        </Text>
-        <Text style={styles.listCardCategory}>{item.category}</Text>
-      </View>
-      <ArrowRight size={16} color={COLORS.textTertiary} />
+    <Pressable style={styles.listCard} onPress={() => onPress(item.id)}>
+      <Text style={styles.listRoman}>{romans[index]}</Text>
+      <Text style={styles.listName}>{item.name}</Text>
+      <Text style={styles.listCount}>{item.count}</Text>
     </Pressable>
   );
 }
@@ -113,277 +86,80 @@ export default function CollectionsScreen() {
   const { width } = useWindowDimensions();
   const [activeCategory, setActiveCategory] = useState("All");
   const [isGrid, setIsGrid] = useState(true);
+  const gap = 12;
+  const cardWidth = (width - 40 - gap) / 2;
 
-  // 2-column grid: full width minus padding (20 each side) minus gap (10) divided by 2
-  const PADDING = 20;
-  const GAP = 10;
-  const cardWidth = (width - PADDING * 2 - GAP) / 2;
-
-  const filtered = activeCategory === "All"
-    ? collections
-    : collections.filter((c) => c.category === activeCategory);
-
-  const goToCollection = (id: string) => router.push(`/collection/${id}`);
-
-  // Pair items for grid rows
-  const rows: typeof collections[] = [];
-  for (let i = 0; i < filtered.length; i += 2) {
-    rows.push(filtered.slice(i, i + 2));
-  }
+  const filtered = activeCategory === "All" ? collections : collections.filter((c) => c.category === activeCategory);
+  const rows = [];
+  for (let i = 0; i < filtered.length; i += 2) rows.push(filtered.slice(i, i + 2));
+  const go = (id: string) => router.push(`/collection/${id}`);
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
-      <View style={styles.glow} />
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.kicker}>AI ARCHIVE</Text>
-          <Text style={styles.screenTitle}>Collections</Text>
-          <Text style={styles.screenSubtitle}>Your camera roll, rebuilt as knowledge</Text>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        <View style={styles.hero}>
+          <Geometry />
+          <Text style={styles.edition}>The{"\n"}Archive{"\n"}Edition</Text>
+          <Text style={styles.giant}>Index</Text>
+          <Text style={styles.serifLine}>Every saved thing, classified like a catalogue.</Text>
         </View>
-        <Pressable
-          style={styles.toggleBtn}
-          onPress={() => setIsGrid(!isGrid)}
-        >
-          {isGrid ? (
-            <List size={18} color={COLORS.textSecondary} />
-          ) : (
-            <SquaresFour size={18} color={COLORS.textSecondary} />
-          )}
-        </Pressable>
-      </View>
 
-      {/* Category Filter */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.chipsScroll}
-      >
-        {categories.map((cat) => (
-          <Pressable
-            key={cat}
-            style={[styles.chip, activeCategory === cat && styles.chipActive]}
-            onPress={() => setActiveCategory(cat)}
-          >
-            <Text style={[styles.chipText, activeCategory === cat && styles.chipTextActive]}>
-              {cat}
-            </Text>
+        <View style={styles.controls}>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chips}>
+            {categories.map((cat) => (
+              <Pressable key={cat} style={[styles.chip, activeCategory === cat && styles.chipActive]} onPress={() => setActiveCategory(cat)}>
+                <Text style={[styles.chipText, activeCategory === cat && styles.chipTextActive]}>{cat}</Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+          <Pressable style={styles.toggle} onPress={() => setIsGrid(!isGrid)}>
+            {isGrid ? <List size={18} color={CREAM} /> : <SquaresFour size={18} color={CREAM} />}
           </Pressable>
-        ))}
-      </ScrollView>
+        </View>
 
-      <View style={styles.divider} />
-
-      <ScrollView
-        style={styles.scroll}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: PADDING, paddingBottom: 32 }}
-      >
-        {isGrid ? (
-          // Explicit row-by-row rendering to avoid flex stretch issues
-          rows.map((row, rowIndex) => (
-            <View key={rowIndex} style={styles.gridRow}>
-              {row.map((item) => (
-                <GridCard
-                  key={item.id}
-                  item={item}
-                  cardWidth={cardWidth}
-                  onPress={goToCollection}
-                />
+        <View style={styles.blackSection}>
+          <Geometry light />
+          {isGrid ? rows.map((row, rowIndex) => (
+            <View key={rowIndex} style={styles.row}>
+              {row.map((item, i) => (
+                <GridCard key={item.id} item={item} index={rowIndex * 2 + i} width={cardWidth} onPress={go} />
               ))}
-              {/* Spacer if odd last row */}
               {row.length === 1 && <View style={{ width: cardWidth }} />}
             </View>
-          ))
-        ) : (
-          filtered.map((item) => (
-            <ListCard key={item.id} item={item} onPress={goToCollection} />
-          ))
-        )}
+          )) : filtered.map((item, i) => <ListCard key={item.id} item={item} index={i} onPress={go} />)}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#070806",
-  },
-  glow: {
-    position: "absolute",
-    top: -90,
-    right: -80,
-    width: 220,
-    height: 220,
-    borderRadius: 110,
-    backgroundColor: "rgba(200,255,46,0.07)",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: 14,
-  },
-  kicker: {
-    fontSize: 10,
-    fontWeight: "900",
-    color: COLORS.lime,
-    letterSpacing: 1.8,
-    marginBottom: 3,
-  },
-  screenTitle: {
-    fontSize: 34,
-    fontWeight: "900",
-    color: "#F8F1E7",
-  },
-  screenSubtitle: {
-    fontSize: 13,
-    color: COLORS.textTertiary,
-    marginTop: 2,
-  },
-  toggleBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    backgroundColor: "rgba(245,240,232,0.06)",
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  chipsScroll: {
-    paddingHorizontal: 20,
-    paddingBottom: 14,
-    gap: 8,
-  },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    backgroundColor: "rgba(245,240,232,0.045)",
-  },
-  chipActive: {
-    borderColor: COLORS.lime + "55",
-    backgroundColor: "rgba(200,255,46,0.10)",
-  },
-  chipText: {
-    fontSize: 12,
-    color: COLORS.textTertiary,
-    fontWeight: "600",
-  },
-  chipTextActive: {
-    color: COLORS.lime,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "rgba(245,240,232,0.07)",
-    marginBottom: 16,
-  },
-  scroll: {
-    flex: 1,
-  },
-  gridRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 10,
-  },
-  gridCard: {
-    borderWidth: 1,
-    borderColor: "rgba(245,240,232,0.11)",
-    borderRadius: 12,
-    padding: 14,
-    minHeight: 152,
-    overflow: "hidden",
-  },
-  gridCardHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 12,
-  },
-  gridIconWrapper: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.04)",
-  },
-  gridCardName: {
-    fontSize: 16,
-    fontWeight: "900",
-    marginBottom: 3,
-    lineHeight: 19,
-  },
-  gridCardCount: {
-    fontSize: 11,
-    color: COLORS.textTertiary,
-    marginBottom: 8,
-    fontWeight: "800",
-  },
-  gridCardInsight: {
-    fontSize: 11,
-    color: COLORS.textSecondary,
-    lineHeight: 16,
-  },
-  listCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: COLORS.border,
-    borderRadius: 8,
-    padding: 14,
-    gap: 12,
-    marginBottom: 10,
-  },
-  listIconWrapper: {
-    width: 44,
-    height: 44,
-    borderRadius: 8,
-    borderWidth: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "rgba(255,255,255,0.04)",
-  },
-  listCardBody: {
-    flex: 1,
-    gap: 3,
-  },
-  listCardTitleRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-  },
-  listCardName: {
-    fontSize: 15,
-    fontWeight: "700",
-    flex: 1,
-  },
-  countBadge: {
-    borderWidth: 1,
-    borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  countBadgeText: {
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  listCardInsight: {
-    fontSize: 12,
-    color: COLORS.textSecondary,
-  },
-  listCardCategory: {
-    fontSize: 10,
-    color: COLORS.textTertiary,
-    letterSpacing: 0.5,
-    fontWeight: "600",
-    textTransform: "uppercase",
-  },
+  container: { flex: 1, backgroundColor: CREAM },
+  content: { paddingBottom: 88 },
+  hero: { height: 330, backgroundColor: CREAM, overflow: "hidden", paddingHorizontal: 20, paddingTop: 20 },
+  edition: { color: INK, fontSize: 20, lineHeight: 18, fontWeight: "900" },
+  giant: { color: INK, fontSize: 82, lineHeight: 86, fontWeight: "900", letterSpacing: -4, marginTop: 86 },
+  serifLine: { color: INK, fontFamily: SERIF, fontSize: 29, lineHeight: 31, maxWidth: 310 },
+  controls: { backgroundColor: CREAM, paddingHorizontal: 20, paddingBottom: 18, flexDirection: "row", alignItems: "center", gap: 10 },
+  chips: { gap: 8 },
+  chip: { borderWidth: 1, borderColor: HAIR, paddingHorizontal: 12, paddingVertical: 7 },
+  chipActive: { backgroundColor: BLACK },
+  chipText: { color: INK, fontSize: 12, fontWeight: "900" },
+  chipTextActive: { color: CREAM },
+  toggle: { width: 38, height: 38, backgroundColor: BLACK, alignItems: "center", justifyContent: "center" },
+  blackSection: { minHeight: 560, backgroundColor: BLACK, paddingHorizontal: 20, paddingTop: 20, overflow: "hidden" },
+  row: { flexDirection: "row", gap: 12, marginBottom: 12 },
+  card: { minHeight: 178, borderWidth: 1, backgroundColor: "rgba(232,228,214,0.055)", padding: 12 },
+  cardRoman: { color: CREAM, fontFamily: SERIF, opacity: 0.58, fontSize: 12 },
+  artifact: { width: 46, height: 58, alignItems: "center", justifyContent: "center", marginTop: 16, transform: [{ rotate: "-3deg" }] },
+  cardName: { fontSize: 18, lineHeight: 20, fontWeight: "900", marginTop: 14 },
+  cardCount: { color: CREAM, opacity: 0.55, fontSize: 12, marginTop: 5 },
+  cardInsight: { color: CREAM, opacity: 0.62, fontSize: 11, lineHeight: 15, marginTop: 8 },
+  listCard: { flexDirection: "row", alignItems: "center", borderBottomWidth: 1, borderBottomColor: HAIR_LIGHT, paddingVertical: 15 },
+  listRoman: { width: 38, color: CREAM, fontFamily: SERIF, opacity: 0.58 },
+  listName: { flex: 1, color: CREAM, fontSize: 19, fontWeight: "900" },
+  listCount: { color: CREAM, opacity: 0.6, fontFamily: SERIF },
+  vLine: { position: "absolute", top: 0, bottom: 0, width: 1 },
+  circle: { position: "absolute", width: 430, height: 430, borderRadius: 215, borderWidth: 1, top: 18, left: -36 },
+  diagonal: { position: "absolute", width: 520, height: 1, top: 180, left: -70, transform: [{ rotate: "-28deg" }] },
 });
