@@ -1,11 +1,11 @@
 import { Tabs } from "expo-router";
-import { View, Text, StyleSheet, Platform } from "react-native";
+import { View, Text, StyleSheet } from "react-native";
 import {
   House,
   SquaresFour,
   MagnifyingGlass,
   ChartBar,
-  Gear,
+  Camera,
 } from "phosphor-react-native";
 import { COLORS } from "../../lib/mockData";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -14,9 +14,17 @@ type TabIconProps = {
   focused: boolean;
   icon: React.ReactNode;
   label: string;
+  isCenter?: boolean;
 };
 
-function TabIcon({ focused, icon, label }: TabIconProps) {
+function TabIcon({ focused, icon, label, isCenter }: TabIconProps) {
+  if (isCenter) {
+    return (
+      <View style={styles.centerTabItem}>
+        <View style={styles.centerIconWrapper}>{icon}</View>
+      </View>
+    );
+  }
   return (
     <View style={styles.tabItem}>
       <View style={[styles.iconWrapper, focused && styles.iconWrapperActive]}>
@@ -86,6 +94,25 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="import"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              isCenter
+              icon={
+                <Camera
+                  size={24}
+                  color="#000"
+                  weight="bold"
+                />
+              }
+              label="Scan"
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="search"
         options={{
           tabBarIcon: ({ focused }) => (
@@ -121,23 +148,10 @@ export default function TabLayout() {
           ),
         }}
       />
+      {/* Hide settings from tab bar but keep it routable */}
       <Tabs.Screen
         name="settings"
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon
-              focused={focused}
-              icon={
-                <Gear
-                  size={22}
-                  color={focused ? COLORS.lime : COLORS.textTertiary}
-                  weight={focused ? "fill" : "regular"}
-                />
-              }
-              label="Settings"
-            />
-          ),
-        }}
+        options={{ href: null }}
       />
     </Tabs>
   );
@@ -167,5 +181,23 @@ const styles = StyleSheet.create({
   },
   tabLabelActive: {
     color: COLORS.lime,
+  },
+  centerTabItem: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 6,
+  },
+  centerIconWrapper: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.lime,
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: COLORS.lime,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 6,
   },
 });
