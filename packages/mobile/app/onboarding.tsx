@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
+import { Animated, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 import { COLORS } from "../lib/mockData";
@@ -122,26 +122,28 @@ export default function OnboardingScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right", "bottom"]}>
-      {index === 0 ? <DriftDots /> : index === 1 ? <UnderstandingIllustration /> : <SearchIllustration />}
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+        {index === 0 ? <DriftDots /> : index === 1 ? <UnderstandingIllustration /> : <SearchIllustration />}
 
-      <View style={styles.copyPanel}>
-        <Badge variant="neutral">{current.badge}</Badge>
-        <Text style={styles.title}>{current.title}</Text>
-        <Text style={styles.body}>{current.body}</Text>
-        <View style={styles.dotsRow}>
-          {steps.map((step, stepIndex) => (
-            <View key={step.title} style={[styles.progressDot, stepIndex === index ? styles.progressDotActive : null]} />
-          ))}
+        <View style={styles.copyPanel}>
+          <Badge variant="neutral">{current.badge}</Badge>
+          <Text style={styles.title}>{current.title}</Text>
+          <Text style={styles.body}>{current.body}</Text>
+          <View style={styles.dotsRow}>
+            {steps.map((step, stepIndex) => (
+              <View key={step.title} style={[styles.progressDot, stepIndex === index ? styles.progressDotActive : null]} />
+            ))}
+          </View>
+          {index === steps.length - 1 ? (
+            <>
+              <PrimaryButton onPress={goNext}>{"Organize My Memory ->"}</PrimaryButton>
+              <Text style={styles.privacy}>Your data stays private. Analysis runs on your device.</Text>
+            </>
+          ) : (
+            <GhostButton onPress={goNext}>Continue</GhostButton>
+          )}
         </View>
-        {index === steps.length - 1 ? (
-          <>
-            <PrimaryButton onPress={goNext}>{"Organize My Memory ->"}</PrimaryButton>
-            <Text style={styles.privacy}>Your data stays private. Analysis runs on your device.</Text>
-          </>
-        ) : (
-          <GhostButton onPress={goNext}>Continue</GhostButton>
-        )}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -151,10 +153,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.bg,
   },
+  scrollContent: {
+    paddingBottom: 28,
+  },
   illustration: {
-    height: "42%",
+    height: 186,
     marginHorizontal: 18,
-    marginTop: 18,
+    marginTop: 12,
     borderRadius: 28,
     backgroundColor: COLORS.surface,
     borderWidth: 1,
@@ -166,29 +171,28 @@ const styles = StyleSheet.create({
     borderRadius: 2,
   },
   copyPanel: {
-    flex: 1,
-    paddingHorizontal: 32,
-    paddingTop: 34,
+    paddingHorizontal: 28,
+    paddingTop: 18,
   },
   title: {
     color: COLORS.textPrimary,
-    fontSize: 32,
-    lineHeight: 37,
+    fontSize: 28,
+    lineHeight: 32,
     fontWeight: "900",
     letterSpacing: -0.9,
-    marginTop: 16,
+    marginTop: 14,
   },
   body: {
     color: COLORS.textSecondary,
-    fontSize: 15,
-    lineHeight: 23,
-    marginTop: 13,
+    fontSize: 14,
+    lineHeight: 21,
+    marginTop: 10,
   },
   dotsRow: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    marginVertical: 28,
+    marginVertical: 18,
   },
   progressDot: {
     width: 6,
@@ -210,10 +214,10 @@ const styles = StyleSheet.create({
   },
   mockScreenshot: {
     position: "absolute",
-    left: 78,
-    top: 38,
-    width: 184,
-    height: 210,
+    left: 82,
+    top: 22,
+    width: 176,
+    height: 162,
     borderRadius: 18,
     backgroundColor: COLORS.surfaceAlt,
     borderWidth: 1,
