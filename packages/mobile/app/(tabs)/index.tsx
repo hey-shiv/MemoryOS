@@ -162,11 +162,13 @@ const styles = StyleSheet.create({
   collectionsGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    justifyContent: "space-between",
+    rowGap: 12,
   },
   collectionCard: {
-    width: "48.5%",
-    minHeight: 174,
+    width: "48%",
+    minHeight: 166,
+    padding: 14,
   },
   collectionTop: {
     flexDirection: "row",
@@ -176,10 +178,10 @@ const styles = StyleSheet.create({
   },
   collectionName: {
     color: COLORS.textPrimary,
-    fontSize: 15,
-    lineHeight: 19,
+    fontSize: 14,
+    lineHeight: 18,
     fontWeight: "800",
-    marginTop: 14,
+    marginTop: 12,
   },
   collectionInsight: {
     color: COLORS.textTertiary,

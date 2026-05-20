@@ -234,13 +234,14 @@ const styles = StyleSheet.create({
   sampleGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    justifyContent: "space-between",
+    rowGap: 10,
   },
   sampleCell: {
-    width: "31.8%",
+    width: "31%",
   },
   scanCell: {
-    width: "31.8%",
+    width: "31%",
     marginBottom: 10,
   },
   scanButton: {

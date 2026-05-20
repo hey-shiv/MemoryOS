@@ -35,6 +35,7 @@ export default function CollectionDetailScreen() {
         subtitle={`${items.length} memories`}
         back={() => router.back()}
         right={<CollectionIcon collection={collection} />}
+        edgePadding
       />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={sharedStyles.scrollContent}>
         <SurfaceCard accent={collection.accentColor} style={styles.insightCard}>
@@ -93,10 +94,11 @@ const styles = StyleSheet.create({
   grid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 12,
+    justifyContent: "space-between",
+    rowGap: 16,
   },
   gridItem: {
-    width: "48.2%",
+    width: "48%",
   },
   cardMeta: {
     gap: 7,

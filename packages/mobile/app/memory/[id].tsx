@@ -33,7 +33,7 @@ export default function MemoryDetailScreen() {
 
   return (
     <SafeAreaView style={sharedStyles.screen} edges={["top", "left", "right"]}>
-      <ScreenHeader title="Memory" subtitle={item.dateAdded} back={() => router.back()} />
+      <ScreenHeader title="Memory" subtitle={item.dateAdded} back={() => router.back()} edgePadding />
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <ImagePlaceholder item={item} style={styles.heroImage} />
 

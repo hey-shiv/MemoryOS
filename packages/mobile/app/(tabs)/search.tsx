@@ -42,7 +42,7 @@ function ResultCard({ item, query }: { item: MemoryItem; query: string }) {
   const router = useRouter();
 
   return (
-    <SurfaceCard style={styles.resultCard} onPress={() => router.push(`/memory/${item.id}`)}>
+    <SurfaceCard accent={item.accentColor} style={styles.resultCard} onPress={() => router.push(`/memory/${item.id}`)}>
       <ImagePlaceholder item={item} small style={styles.resultImage} />
       <View style={styles.resultBody}>
         <Badge variant={badgeVariant(item)}>{item.category}</Badge>

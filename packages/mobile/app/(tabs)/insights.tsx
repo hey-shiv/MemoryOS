@@ -133,11 +133,14 @@ const styles = StyleSheet.create({
   metricGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    justifyContent: "space-between",
+    rowGap: 10,
     marginTop: 4,
   },
   metricCard: {
-    width: "48.5%",
+    width: "48%",
+    minHeight: 92,
+    justifyContent: "center",
   },
   metricValue: {
     fontSize: 34,

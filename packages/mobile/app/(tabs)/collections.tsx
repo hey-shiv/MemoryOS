@@ -34,6 +34,7 @@ export default function CollectionsScreen() {
           {visible.map((collection) => (
             <SurfaceCard
               key={collection.id}
+              accent={collection.accentColor}
               style={styles.collectionRow}
               onPress={() => router.push(`/collection/${collection.id}`)}
             >

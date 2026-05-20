@@ -97,14 +97,16 @@ export function ScreenHeader({
   subtitle,
   right,
   back,
+  edgePadding = false,
 }: {
   title: string;
   subtitle?: string;
   right?: React.ReactNode;
   back?: () => void;
+  edgePadding?: boolean;
 }) {
   return (
-    <View style={styles.header}>
+    <View style={[styles.header, edgePadding ? styles.headerEdgePadding : null]}>
       <View style={styles.headerTitleWrap}>
         <View style={styles.headerTitleRow}>
           {back ? (
@@ -149,16 +151,12 @@ export function SurfaceCard({
   onPress?: () => void;
   accent?: string;
 }) {
-  const body = (
-    <View style={[styles.surfaceCard, accent ? { borderLeftWidth: 3, borderLeftColor: accent } : null, style]}>
-      {children}
-    </View>
-  );
+  const cardStyle = [styles.surfaceCard, accent ? { borderLeftWidth: 3, borderLeftColor: accent } : null, style];
 
-  if (!onPress) return body;
+  if (!onPress) return <View style={cardStyle}>{children}</View>;
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [pressed && styles.pressed]}>
-      {body}
+    <Pressable onPress={onPress} style={({ pressed }) => [cardStyle, pressed && styles.pressed]}>
+      {children}
     </Pressable>
   );
 }
@@ -404,7 +402,7 @@ export const sharedStyles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: 18,
-    paddingBottom: 96,
+    paddingBottom: 118,
   },
   sectionRow: {
     flexDirection: "row",
@@ -432,9 +430,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-start",
-    paddingHorizontal: 18,
     paddingTop: 12,
     paddingBottom: 18,
+  },
+  headerEdgePadding: {
+    paddingHorizontal: 18,
   },
   headerTitleWrap: {
     flex: 1,
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.surface,
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 16,
     shadowColor: "#000",
     shadowOpacity: 0.4,
