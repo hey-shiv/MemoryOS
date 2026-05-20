@@ -9,8 +9,9 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <StatusBar style="light" backgroundColor="#0A0A09" />
-        <Stack screenOptions={{ headerShown: false, animation: "fade" }}>
+        <StatusBar style="light" backgroundColor="#0A0A0B" />
+        <Stack screenOptions={{ headerShown: false, animation: "slide_from_right" }}>
+          <Stack.Screen name="onboarding" options={{ headerShown: false }} />
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="memory/[id]" options={{ headerShown: false, animation: "slide_from_right" }} />
           <Stack.Screen name="collection/[id]" options={{ headerShown: false, animation: "slide_from_right" }} />

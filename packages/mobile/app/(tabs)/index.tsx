@@ -70,7 +70,7 @@ export default function HomeScreen() {
           </View>
           <Text style={styles.insightTitle}>You saved 14 startup ideas this week</Text>
           <Text style={styles.insightCopy}>3 look promising. Tap to review before they disappear again.</Text>
-          <Text style={styles.reviewLink}>Review -></Text>
+          <Text style={styles.reviewLink}>{"Review ->"}</Text>
         </SurfaceCard>
 
         <Pressable style={styles.searchWrap} onPress={() => router.push("/(tabs)/search")}>
@@ -80,7 +80,7 @@ export default function HomeScreen() {
         <View style={sharedStyles.sectionRow}>
           <Text style={sharedStyles.sectionLabel}>Smart Collections</Text>
           <Pressable onPress={() => router.push("/(tabs)/collections")}>
-            <Text style={sharedStyles.seeAll}>See all -></Text>
+            <Text style={sharedStyles.seeAll}>{"See all ->"}</Text>
           </Pressable>
         </View>
 
@@ -111,7 +111,7 @@ export default function HomeScreen() {
             <View style={styles.gemTextWrap}>
               <Text style={styles.gemTitle}>You saved this startup idea 92 days ago.</Text>
               <Text style={styles.gemCopy} numberOfLines={2}>{gem.gemInsight}</Text>
-              <Text style={styles.gemLink}>Resurface -></Text>
+              <Text style={styles.gemLink}>{"Resurface ->"}</Text>
             </View>
           </View>
         </SurfaceCard>

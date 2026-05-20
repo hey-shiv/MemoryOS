@@ -93,7 +93,7 @@ export default function ImportScreen() {
               ))}
             </View>
 
-            <PrimaryButton style={styles.scanButton} onPress={startScan}>Scan Memory -></PrimaryButton>
+            <PrimaryButton style={styles.scanButton} onPress={startScan}>{"Scan Memory ->"}</PrimaryButton>
           </>
         ) : null}
 
@@ -159,7 +159,7 @@ export default function ImportScreen() {
                 <View style={styles.resultStat}><Text style={[styles.resultNumber, { color: COLORS.amber }]}>12</Text><Text style={styles.resultLabel}>gems</Text></View>
                 <View style={styles.resultStat}><Text style={[styles.resultNumber, { color: COLORS.red }]}>2</Text><Text style={styles.resultLabel}>private</Text></View>
               </View>
-              <PrimaryButton onPress={() => router.push("/(tabs)/collections")}>View Collections -></PrimaryButton>
+              <PrimaryButton onPress={() => router.push("/(tabs)/collections")}>{"View Collections ->"}</PrimaryButton>
             </SurfaceCard>
 
             <View style={sharedStyles.sectionRow}>
