@@ -21,7 +21,9 @@ import {
   ShieldWarning,
   ArrowRight,
   ScanSmiley,
+  Play,
 } from "phosphor-react-native";
+import { useRouter } from "expo-router";
 import { COLORS, mockMemories } from "../../lib/mockData";
 
 const recentScans = mockMemories.slice(0, 6);
@@ -33,6 +35,7 @@ const iconMap: Record<string, React.ComponentType<any>> = {
 type ScanStatus = "idle" | "scanning" | "done";
 
 export default function ImportScreen() {
+  const router = useRouter();
   const [scanStatus, setScanStatus] = useState<ScanStatus>("idle");
   const [scanned, setScanned] = useState(0);
 
@@ -132,6 +135,17 @@ export default function ImportScreen() {
             </Pressable>
           </View>
         </View>
+
+        {/* Demo Mode CTA */}
+        <Pressable
+          style={styles.demoCta}
+          onPress={() => router.push("/demo")}
+          android_ripple={{ color: "rgba(245,166,35,0.1)" }}
+        >
+          <Play size={14} color={COLORS.amber} weight="fill" />
+          <Text style={styles.demoCtaText}>▶ Start 30s Demo</Text>
+          <ArrowRight size={13} color={COLORS.amber} />
+        </Pressable>
 
         {/* Stats row */}
         <View style={styles.statsRow}>
@@ -428,5 +442,24 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary,
     textAlign: "center",
     lineHeight: 18,
+  },
+  demoCta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: COLORS.amber + "40",
+    borderRadius: 8,
+    paddingVertical: 11,
+    paddingHorizontal: 14,
+    backgroundColor: "rgba(245,166,35,0.06)",
+  },
+  demoCtaText: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "600",
+    color: COLORS.amber,
   },
 });

@@ -181,6 +181,17 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
+        {/* Demo Mode CTA */}
+        <Pressable
+          style={styles.demoCta}
+          onPress={() => router.push("/demo")}
+          android_ripple={{ color: "rgba(245,166,35,0.1)" }}
+        >
+          <Sparkle size={15} color={COLORS.amber} weight="fill" />
+          <Text style={styles.demoCtaText}>See MemoryOS in 30 seconds</Text>
+          <ArrowRight size={14} color={COLORS.amber} />
+        </Pressable>
+
         {/* Recent Imports */}
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>RECENT IMPORTS</Text>
@@ -593,5 +604,24 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: COLORS.amber,
     fontWeight: "600",
+  },
+  demoCta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginHorizontal: 20,
+    marginBottom: 24,
+    borderWidth: 1,
+    borderColor: COLORS.amber + "40",
+    borderRadius: 8,
+    paddingVertical: 11,
+    paddingHorizontal: 14,
+    backgroundColor: "rgba(245,166,35,0.06)",
+  },
+  demoCtaText: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "600",
+    color: COLORS.amber,
   },
 });

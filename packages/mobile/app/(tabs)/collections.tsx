@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   Pressable,
+  useWindowDimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
@@ -43,77 +44,92 @@ const iconMap: Record<string, React.ComponentType<any>> = {
   ShieldWarning,
 };
 
-const categories = ["All", "Tech", "Business", "Learning", "Lifestyle", "Finance", "Work", "Private", "Fun", "Inspiration"];
+const categories = [
+  "All", "Tech", "Business", "Learning",
+  "Lifestyle", "Finance", "Work", "Private", "Fun", "Inspiration",
+];
 
-function CollectionCard({ item, isGrid, index, onPress }: any) {
+function GridCard({ item, cardWidth, onPress }: any) {
   const IconComp = iconMap[item.icon] || Code;
+  return (
+    <Pressable
+      style={[styles.gridCard, { backgroundColor: item.bgColor, width: cardWidth }]}
+      onPress={() => onPress(item.id)}
+      android_ripple={{ color: "rgba(255,255,255,0.05)" }}
+    >
+      <View style={styles.gridCardHeader}>
+        <View style={[styles.gridIconWrapper, { borderColor: item.accentColor + "40" }]}>
+          <IconComp size={20} color={item.accentColor} weight="duotone" />
+        </View>
+        {item.id === "sensitive" && (
+          <ShieldCheck size={14} color={COLORS.red} weight="fill" />
+        )}
+      </View>
+      <Text style={[styles.gridCardName, { color: item.accentColor }]} numberOfLines={1}>
+        {item.name}
+      </Text>
+      <Text style={styles.gridCardCount}>{item.count} items</Text>
+      <Text style={styles.gridCardInsight} numberOfLines={2}>
+        {item.insight}
+      </Text>
+    </Pressable>
+  );
+}
 
-  if (isGrid) {
-    return (
-      <View style={{ flex: 1 }}>
-        <Pressable
-          style={[styles.gridCard, { backgroundColor: item.bgColor }]}
-          onPress={() => onPress(item.id)}
-        >
-          <View style={styles.gridCardHeader}>
-            <View style={[styles.gridIconWrapper, { borderColor: item.accentColor + "40" }]}>
-              <IconComp size={20} color={item.accentColor} weight="duotone" />
-            </View>
-            {item.id === "sensitive" && (
-              <ShieldCheck size={14} color={COLORS.red} weight="fill" />
-            )}
-          </View>
-          <Text style={[styles.gridCardName, { color: item.accentColor }]} numberOfLines={1}>
+function ListCard({ item, onPress }: any) {
+  const IconComp = iconMap[item.icon] || Code;
+  return (
+    <Pressable
+      style={[styles.listCard, { backgroundColor: item.bgColor }]}
+      onPress={() => onPress(item.id)}
+      android_ripple={{ color: "rgba(255,255,255,0.05)" }}
+    >
+      <View style={[styles.listIconWrapper, { borderColor: item.accentColor + "40" }]}>
+        <IconComp size={22} color={item.accentColor} weight="duotone" />
+      </View>
+      <View style={styles.listCardBody}>
+        <View style={styles.listCardTitleRow}>
+          <Text style={[styles.listCardName, { color: item.accentColor }]} numberOfLines={1}>
             {item.name}
           </Text>
-          <Text style={styles.gridCardCount}>{item.count} items</Text>
-          <Text style={styles.gridCardInsight} numberOfLines={2}>
-            {item.insight}
-          </Text>
-        </Pressable>
-      </View>
-    );
-  }
-
-  return (
-    <View>
-      <Pressable
-        style={[styles.listCard, { backgroundColor: item.bgColor }]}
-        onPress={() => onPress(item.id)}
-      >
-        <View style={[styles.listIconWrapper, { borderColor: item.accentColor + "40" }]}>
-          <IconComp size={22} color={item.accentColor} weight="duotone" />
-        </View>
-        <View style={styles.listCardBody}>
-          <View style={styles.listCardTitleRow}>
-            <Text style={[styles.listCardName, { color: item.accentColor }]}>
-              {item.name}
+          <View style={[styles.countBadge, { borderColor: item.accentColor + "30" }]}>
+            <Text style={[styles.countBadgeText, { color: item.accentColor }]}>
+              {item.count}
             </Text>
-            <View style={[styles.countBadge, { borderColor: item.accentColor + "30" }]}>
-              <Text style={[styles.countBadgeText, { color: item.accentColor }]}>
-                {item.count}
-              </Text>
-            </View>
           </View>
-          <Text style={styles.listCardInsight} numberOfLines={1}>
-            {item.insight}
-          </Text>
-          <Text style={styles.listCardCategory}>{item.category}</Text>
         </View>
-        <ArrowRight size={16} color={COLORS.textTertiary} />
-      </Pressable>
-    </View>
+        <Text style={styles.listCardInsight} numberOfLines={1}>
+          {item.insight}
+        </Text>
+        <Text style={styles.listCardCategory}>{item.category}</Text>
+      </View>
+      <ArrowRight size={16} color={COLORS.textTertiary} />
+    </Pressable>
   );
 }
 
 export default function CollectionsScreen() {
   const router = useRouter();
+  const { width } = useWindowDimensions();
   const [activeCategory, setActiveCategory] = useState("All");
   const [isGrid, setIsGrid] = useState(true);
+
+  // 2-column grid: full width minus padding (20 each side) minus gap (10) divided by 2
+  const PADDING = 20;
+  const GAP = 10;
+  const cardWidth = (width - PADDING * 2 - GAP) / 2;
 
   const filtered = activeCategory === "All"
     ? collections
     : collections.filter((c) => c.category === activeCategory);
+
+  const goToCollection = (id: string) => router.push(`/collection/${id}`);
+
+  // Pair items for grid rows
+  const rows: typeof collections[] = [];
+  for (let i = 0; i < filtered.length; i += 2) {
+    rows.push(filtered.slice(i, i + 2));
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
@@ -135,59 +151,51 @@ export default function CollectionsScreen() {
         </Pressable>
       </View>
 
-      {/* Category Filter Chips */}
-      <View>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.chipsScroll}
-        >
-          {categories.map((cat) => (
-            <Pressable
-              key={cat}
-              style={[styles.chip, activeCategory === cat && styles.chipActive]}
-              onPress={() => setActiveCategory(cat)}
-            >
-              <Text style={[styles.chipText, activeCategory === cat && styles.chipTextActive]}>
-                {cat}
-              </Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-      </View>
+      {/* Category Filter */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.chipsScroll}
+      >
+        {categories.map((cat) => (
+          <Pressable
+            key={cat}
+            style={[styles.chip, activeCategory === cat && styles.chipActive]}
+            onPress={() => setActiveCategory(cat)}
+          >
+            <Text style={[styles.chipText, activeCategory === cat && styles.chipTextActive]}>
+              {cat}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
 
       <View style={styles.divider} />
 
-      {/* Collections Grid/List */}
       <ScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={[
-          isGrid ? styles.gridContainer : styles.listContainer,
-          { paddingBottom: 24 },
-        ]}
+        contentContainerStyle={{ paddingHorizontal: PADDING, paddingBottom: 32 }}
       >
         {isGrid ? (
-          <View style={styles.grid}>
-            {filtered.map((item, i) => (
-              <CollectionCard
-                key={item.id}
-                item={item}
-                isGrid={true}
-                index={i}
-                onPress={(id: string) => router.push(`/collection/${id}`)}
-              />
-            ))}
-          </View>
+          // Explicit row-by-row rendering to avoid flex stretch issues
+          rows.map((row, rowIndex) => (
+            <View key={rowIndex} style={styles.gridRow}>
+              {row.map((item) => (
+                <GridCard
+                  key={item.id}
+                  item={item}
+                  cardWidth={cardWidth}
+                  onPress={goToCollection}
+                />
+              ))}
+              {/* Spacer if odd last row */}
+              {row.length === 1 && <View style={{ width: cardWidth }} />}
+            </View>
+          ))
         ) : (
-          filtered.map((item, i) => (
-            <CollectionCard
-              key={item.id}
-              item={item}
-              isGrid={false}
-              index={i}
-              onPress={(id: string) => router.push(`/collection/${id}`)}
-            />
+          filtered.map((item) => (
+            <ListCard key={item.id} item={item} onPress={goToCollection} />
           ))
         )}
       </ScrollView>
@@ -262,26 +270,17 @@ const styles = StyleSheet.create({
   scroll: {
     flex: 1,
   },
-  gridContainer: {
-    paddingHorizontal: 20,
-  },
-  listContainer: {
-    paddingHorizontal: 20,
-    gap: 10,
-  },
-  grid: {
+  gridRow: {
     flexDirection: "row",
-    flexWrap: "wrap",
     gap: 10,
+    marginBottom: 10,
   },
   gridCard: {
     borderWidth: 1,
     borderColor: COLORS.border,
-    borderRadius: 8,
+    borderRadius: 10,
     padding: 14,
-    minWidth: "47%",
-    maxWidth: "48%",
-    marginBottom: 0,
+    minHeight: 130,
   },
   gridCardHeader: {
     flexDirection: "row",
@@ -301,7 +300,7 @@ const styles = StyleSheet.create({
   gridCardName: {
     fontSize: 14,
     fontWeight: "700",
-    marginBottom: 2,
+    marginBottom: 3,
   },
   gridCardCount: {
     fontSize: 11,
@@ -321,6 +320,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 14,
     gap: 12,
+    marginBottom: 10,
   },
   listIconWrapper: {
     width: 44,
@@ -343,6 +343,7 @@ const styles = StyleSheet.create({
   listCardName: {
     fontSize: 15,
     fontWeight: "700",
+    flex: 1,
   },
   countBadge: {
     borderWidth: 1,
