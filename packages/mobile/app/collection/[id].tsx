@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -25,8 +25,17 @@ function variantFor(category: string, sensitive: boolean): "cyan" | "amber" | "g
 export default function CollectionDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const [query, setQuery] = useState("");
   const collection = collections.find((entry) => entry.id === id) ?? collections[0];
-  const items = mockMemories.filter((item) => item.collectionIds.includes(collection.id));
+  const allItems = mockMemories.filter((item) => item.collectionIds.includes(collection.id));
+  const items = query.trim()
+    ? allItems.filter(
+        (item) =>
+          item.title.toLowerCase().includes(query.toLowerCase()) ||
+          item.tags.some((t) => t.toLowerCase().includes(query.toLowerCase())) ||
+          item.summary.toLowerCase().includes(query.toLowerCase())
+      )
+    : allItems;
 
   return (
     <SafeAreaView style={sharedStyles.screen} edges={["top", "left", "right"]}>
@@ -44,12 +53,12 @@ export default function CollectionDetailScreen() {
         </SurfaceCard>
 
         <View style={styles.searchWrap}>
-          <SearchField placeholder={`Search in ${collection.name}...`} />
+          <SearchField placeholder={`Search in ${collection.name}...`} value={query} onChangeText={setQuery} />
         </View>
 
         <View style={sharedStyles.sectionRow}>
           <Text style={sharedStyles.sectionLabel}>All Memories</Text>
-          <Badge variant="neutral">{items.length} indexed</Badge>
+          <Badge variant="neutral">{allItems.length} indexed</Badge>
         </View>
 
         <View style={styles.grid}>

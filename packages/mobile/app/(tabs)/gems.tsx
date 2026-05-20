@@ -5,6 +5,13 @@ import { useRouter } from "expo-router";
 import { COLORS, forgottenGems, MemoryItem } from "../../lib/mockData";
 import { Badge, GhostButton, ImagePlaceholder, ScreenHeader, SurfaceCard, sharedStyles } from "../../lib/ui";
 
+function daysAgo(dateStr: string): string {
+  const days = Math.round((Date.now() - new Date(dateStr).getTime()) / 86_400_000);
+  if (days === 0) return "today";
+  if (days === 1) return "1 day ago";
+  return `${days} days ago`;
+}
+
 function GemCard({ item }: { item: MemoryItem }) {
   const router = useRouter();
   const variant = item.primaryCategory === "coding" ? "cyan" : item.primaryCategory === "food" || item.primaryCategory === "fitness" ? "green" : "amber";
@@ -12,7 +19,7 @@ function GemCard({ item }: { item: MemoryItem }) {
   return (
     <SurfaceCard accent={COLORS.amber} style={styles.gemCard}>
       <View style={styles.gemTop}>
-        <Badge variant="amber">92 days ago</Badge>
+        <Badge variant="amber">{daysAgo(item.importedAt)}</Badge>
         <Badge variant={variant}>{item.category}</Badge>
       </View>
       <Pressable onPress={() => router.push(`/memory/${item.id}`)}>

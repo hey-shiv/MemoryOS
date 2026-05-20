@@ -11,7 +11,20 @@ const filters = ["All", "Recent", "Sensitive"] as const;
 export default function CollectionsScreen() {
   const router = useRouter();
   const [active, setActive] = useState<(typeof filters)[number]>("All");
-  const visible = active === "Sensitive" ? collections.filter((item) => item.id === "col_sensitive") : collections;
+  const recentIds = ["col_startup", "col_coding", "col_food", "col_travel", "col_whiteboard"];
+  const visible =
+    active === "Sensitive"
+      ? collections.filter((item) => item.id === "col_sensitive")
+      : active === "Recent"
+      ? [...collections].sort((a, b) => {
+          const ai = recentIds.indexOf(a.id);
+          const bi = recentIds.indexOf(b.id);
+          if (ai === -1 && bi === -1) return 0;
+          if (ai === -1) return 1;
+          if (bi === -1) return -1;
+          return ai - bi;
+        })
+      : collections;
 
   return (
     <SafeAreaView style={sharedStyles.screen} edges={["top", "left", "right"]}>

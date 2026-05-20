@@ -55,7 +55,7 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={sharedStyles.screen} edges={["top", "left", "right"]}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={sharedStyles.scrollContent}>
-        <ScreenHeader title="Settings" subtitle="Privacy-first by design" back={() => router.back()} />
+        <ScreenHeader title="Settings" subtitle="Privacy-first by design" back={() => router.canGoBack() ? router.back() : router.push("/(tabs)")} />
 
         <SurfaceCard style={styles.privacyCard}>
           <Text style={styles.cardTitle}>Privacy First</Text>

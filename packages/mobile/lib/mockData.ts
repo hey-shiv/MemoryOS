@@ -498,6 +498,7 @@ export const collections: Collection[] = [
   { id: "col_travel", name: "Travel", icon: "MapPin", count: 4, insight: "4 places", accentColor: COLORS.cyan, bgColor: COLORS.cyanDim, category: "Lifestyle", description: "Itineraries and maps." },
   { id: "col_memes", name: "Memes", icon: "Smiley", count: 11, insight: "11 found", accentColor: COLORS.textSecondary, bgColor: "rgba(255,255,255,0.06)", category: "Fun", description: "Jokes worth finding again." },
   { id: "col_sensitive", name: "Sensitive", icon: "ShieldWarning", count: 3, insight: "3 to review", accentColor: COLORS.red, bgColor: COLORS.redDim, category: "Private", description: "Secrets, IDs, private data." },
+  { id: "col_whiteboard", name: "Whiteboard", icon: "Student", count: 2, insight: "2 sketches", accentColor: COLORS.cyan, bgColor: COLORS.cyanDim, category: "Ideas", description: "Brainstorms and canvases." },
 ];
 
 export const searchSuggestions = [

@@ -102,6 +102,11 @@ export default function HomeScreen() {
           ))}
         </ScrollView>
 
+        <Pressable style={styles.demoButton} onPress={() => router.push("/demo")}>
+          <Sparkle size={16} color={COLORS.textDark} weight="fill" />
+          <Text style={styles.demoButtonText}>Try Demo Mode</Text>
+        </Pressable>
+
         <SurfaceCard accent={COLORS.amber} style={styles.gemCard} onPress={() => router.push("/(tabs)/gems")}>
           <Badge variant="amber">Forgotten Gem</Badge>
           <View style={styles.gemContent}>
@@ -209,8 +214,23 @@ const styles = StyleSheet.create({
   recentCard: {
     width: 84,
   },
+  demoButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 20,
+    height: 46,
+    borderRadius: 14,
+    backgroundColor: COLORS.cyan,
+  },
+  demoButtonText: {
+    color: COLORS.textDark,
+    fontSize: 14,
+    fontWeight: "900",
+  },
   gemCard: {
-    marginTop: 24,
+    marginTop: 16,
     marginBottom: 8,
   },
   gemContent: {

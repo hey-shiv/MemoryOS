@@ -112,7 +112,7 @@ export default function ImportScreen() {
                       </View>
                       <View style={styles.stepTextWrap}>
                         <Text style={[styles.stepText, active ? styles.stepTextActive : null]}>{step}{active ? "..." : ""}</Text>
-                        <ConfidenceBar value={complete ? 1 : active ? progress * steps.length - activeStep : 0} width={210} />
+                        <ConfidenceBar value={complete ? 1 : active ? Math.max(0, progress * steps.length - activeStep) : 0} width={210} />
                       </View>
                     </View>
                   );

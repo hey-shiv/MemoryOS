@@ -5,6 +5,7 @@ import {
   StyleProp,
   StyleSheet,
   Text,
+  TextInput,
   View,
   ViewStyle,
 } from "react-native";
@@ -35,6 +36,7 @@ import {
   Sparkle,
   SquaresFour,
   Student,
+  Phone,
   Warning,
 } from "phosphor-react-native";
 import { COLORS, Collection, MemoryItem } from "./mockData";
@@ -66,6 +68,7 @@ export const ICONS: Record<string, React.ComponentType<any>> = {
   Sparkle,
   SquaresFour,
   Student,
+  Phone,
   Warning,
 };
 
@@ -223,9 +226,20 @@ export function SearchField({
   return (
     <View style={[styles.searchField, focused && styles.searchFieldFocused]}>
       <MagnifyingGlass size={18} color={focused ? COLORS.cyan : COLORS.textTertiary} />
-      <Text style={[styles.searchPlaceholder, value ? styles.searchValue : null]} numberOfLines={1}>
-        {value || placeholder}
-      </Text>
+      {onChangeText ? (
+        <TextInput
+          style={[styles.searchPlaceholder, styles.searchValue]}
+          value={value}
+          placeholder={placeholder}
+          placeholderTextColor={COLORS.textTertiary}
+          onChangeText={onChangeText}
+          returnKeyType="search"
+        />
+      ) : (
+        <Text style={[styles.searchPlaceholder, value ? styles.searchValue : null]} numberOfLines={1}>
+          {value || placeholder}
+        </Text>
+      )}
     </View>
   );
 }
