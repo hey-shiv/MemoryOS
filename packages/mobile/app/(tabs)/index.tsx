@@ -120,7 +120,7 @@ function ProductCard({ title, subtitle, metric, accent }: { title: string; subti
 
 export default function HomeScreen() {
   const router = useRouter();
-  const featured = [mockMemories[4], mockMemories[0], mockMemories[12], mockMemories[17]];
+  const featured = [mockMemories[3], mockMemories[5], mockMemories[6], mockMemories[8]];
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "left", "right"]}>
@@ -257,14 +257,14 @@ const styles = StyleSheet.create({
   },
   floatingMemory: {
     position: "absolute",
-    width: 112,
-    minHeight: 116,
+    width: 104,
+    minHeight: 108,
     borderWidth: 1,
     borderColor: "rgba(232,228,214,0.24)",
-    padding: 12,
+    padding: 10,
     justifyContent: "space-between",
   },
-  floatingMemoryTitle: { fontSize: 13, lineHeight: 15, fontWeight: "900" },
+  floatingMemoryTitle: { fontSize: 11, lineHeight: 13, fontWeight: "900", marginTop: 6 },
   marbleGlobe: {
     position: "absolute",
     left: 115,
