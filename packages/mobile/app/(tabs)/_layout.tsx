@@ -21,7 +21,9 @@ function TabIcon({ focused, icon, label, isCenter }: TabIconProps) {
   if (isCenter) {
     return (
       <View style={styles.centerTabItem}>
-        <View style={styles.centerIconWrapper}>{icon}</View>
+        <View style={[styles.centerIconWrapper, focused && styles.centerIconWrapperActive]}>
+          {icon}
+        </View>
       </View>
     );
   }
@@ -39,16 +41,17 @@ function TabIcon({ focused, icon, label, isCenter }: TabIconProps) {
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const TAB_HEIGHT = 64;
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: "#111110",
-          borderTopColor: COLORS.border,
+          backgroundColor: "#0E0E0C",
+          borderTopColor: "rgba(245,240,232,0.08)",
           borderTopWidth: 1,
-          height: 64 + insets.bottom,
+          height: TAB_HEIGHT + insets.bottom,
           paddingBottom: insets.bottom,
           paddingTop: 8,
           elevation: 0,
@@ -148,7 +151,6 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* Hide settings from tab bar but keep it routable */}
       <Tabs.Screen
         name="settings"
         options={{ href: null }}
@@ -161,10 +163,10 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: "center",
     justifyContent: "center",
-    gap: 4,
+    gap: 3,
   },
   iconWrapper: {
-    width: 36,
+    width: 38,
     height: 28,
     alignItems: "center",
     justifyContent: "center",
@@ -176,11 +178,12 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 10,
     fontWeight: "500",
-    letterSpacing: 0.5,
+    letterSpacing: 0.4,
     color: COLORS.textTertiary,
   },
   tabLabelActive: {
     color: COLORS.lime,
+    fontWeight: "700",
   },
   centerTabItem: {
     alignItems: "center",
@@ -188,16 +191,20 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   centerIconWrapper: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     backgroundColor: COLORS.lime,
     alignItems: "center",
     justifyContent: "center",
     shadowColor: COLORS.lime,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.4,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  centerIconWrapperActive: {
+    shadowOpacity: 0.8,
+    shadowRadius: 16,
   },
 });
