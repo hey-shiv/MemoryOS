@@ -16,7 +16,7 @@ function GemCard({ item }: { item: MemoryItem }) {
         <Badge variant={variant}>{item.category}</Badge>
       </View>
       <Pressable onPress={() => router.push(`/memory/${item.id}`)}>
-        <ImagePlaceholder item={item} wide scanning style={styles.gemImage} />
+        <ImagePlaceholder item={item} wide style={styles.gemImage} />
       </Pressable>
       <Text style={styles.gemInsight}>{item.gemInsight}</Text>
       <View style={styles.tagRow}>

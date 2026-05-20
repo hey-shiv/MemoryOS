@@ -192,8 +192,7 @@ const styles = StyleSheet.create({
   tinyThumbRow: {
     flexDirection: "row",
     gap: 6,
-    marginTop: "auto",
-    paddingTop: 14,
+    marginTop: 12,
   },
   tinyThumb: {
     width: 24,
