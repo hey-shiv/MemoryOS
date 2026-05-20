@@ -1,38 +1,23 @@
+import React from "react";
 import { Tabs } from "expo-router";
 import { View, Text, StyleSheet } from "react-native";
-import {
-  House,
-  SquaresFour,
-  MagnifyingGlass,
-  ChartBar,
-  Camera,
-} from "phosphor-react-native";
-import { COLORS } from "../../lib/mockData";
+import { ChartBar, House, MagnifyingGlass, Plus, Sparkle } from "phosphor-react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { COLORS } from "../../lib/mockData";
 
 type TabIconProps = {
   focused: boolean;
   icon: React.ReactNode;
   label: string;
-  isCenter?: boolean;
+  amber?: boolean;
 };
 
-function TabIcon({ focused, icon, label, isCenter }: TabIconProps) {
-  if (isCenter) {
-    return (
-      <View style={styles.centerTabItem}>
-        <View style={styles.centerIconWrapper}>{icon}</View>
-      </View>
-    );
-  }
+function TabIcon({ focused, icon, label, amber }: TabIconProps) {
   return (
     <View style={styles.tabItem}>
-      <View style={[styles.iconWrapper, focused && styles.iconWrapperActive]}>
-        {icon}
-      </View>
-      <Text style={[styles.tabLabel, focused && styles.tabLabelActive]}>
-        {label}
-      </Text>
+      {icon}
+      {focused ? <View style={[styles.activeDot, amber ? styles.activeDotAmber : null]} /> : null}
+      {focused ? <Text style={[styles.tabLabel, amber ? styles.tabLabelAmber : null]}>{label}</Text> : null}
     </View>
   );
 }
@@ -44,20 +29,23 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
+        tabBarShowLabel: false,
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: "rgba(8,9,7,0.96)",
-          borderTopColor: "rgba(245,240,232,0.10)",
-          borderTopWidth: 1,
-          height: 68 + insets.bottom,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 64 + insets.bottom,
           paddingBottom: insets.bottom,
-          paddingTop: 9,
+          paddingTop: 7,
+          backgroundColor: "rgba(10,10,11,0.90)",
+          borderTopColor: COLORS.border,
+          borderTopWidth: 1,
           elevation: 0,
           shadowColor: "#000",
           shadowOpacity: 0.35,
-          shadowRadius: 18,
+          shadowRadius: 22,
         },
-        tabBarShowLabel: false,
       }}
     >
       <Tabs.Screen
@@ -66,32 +54,8 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => (
             <TabIcon
               focused={focused}
-              icon={
-                <House
-                  size={22}
-                  color={focused ? COLORS.lime : COLORS.textTertiary}
-                  weight={focused ? "fill" : "regular"}
-                />
-              }
               label="Home"
-            />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="collections"
-        options={{
-          tabBarIcon: ({ focused }) => (
-            <TabIcon
-              focused={focused}
-              icon={
-                <SquaresFour
-                  size={22}
-                  color={focused ? COLORS.lime : COLORS.textTertiary}
-                  weight={focused ? "fill" : "regular"}
-                />
-              }
-              label="Collections"
+              icon={<House size={22} color={focused ? COLORS.cyan : COLORS.textDisabled} weight={focused ? "fill" : "regular"} />}
             />
           ),
         }}
@@ -102,15 +66,8 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => (
             <TabIcon
               focused={focused}
-              isCenter
-              icon={
-                <Camera
-                  size={24}
-                  color="#000"
-                  weight="bold"
-                />
-              }
-              label="Scan"
+              label="Import"
+              icon={<Plus size={23} color={focused ? COLORS.cyan : COLORS.textDisabled} weight={focused ? "bold" : "regular"} />}
             />
           ),
         }}
@@ -121,14 +78,8 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => (
             <TabIcon
               focused={focused}
-              icon={
-                <MagnifyingGlass
-                  size={22}
-                  color={focused ? COLORS.lime : COLORS.textTertiary}
-                  weight={focused ? "bold" : "regular"}
-                />
-              }
               label="Search"
+              icon={<MagnifyingGlass size={22} color={focused ? COLORS.cyan : COLORS.textDisabled} weight={focused ? "bold" : "regular"} />}
             />
           ),
         }}
@@ -139,70 +90,54 @@ export default function TabLayout() {
           tabBarIcon: ({ focused }) => (
             <TabIcon
               focused={focused}
-              icon={
-                <ChartBar
-                  size={22}
-                  color={focused ? COLORS.lime : COLORS.textTertiary}
-                  weight={focused ? "fill" : "regular"}
-                />
-              }
               label="Insights"
+              icon={<ChartBar size={22} color={focused ? COLORS.cyan : COLORS.textDisabled} weight={focused ? "fill" : "regular"} />}
             />
           ),
         }}
       />
-      {/* Hide settings from tab bar but keep it routable */}
       <Tabs.Screen
-        name="settings"
-        options={{ href: null }}
+        name="gems"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              focused={focused}
+              label="Gems"
+              amber
+              icon={<Sparkle size={22} color={focused ? COLORS.amber : COLORS.textDisabled} weight={focused ? "fill" : "regular"} />}
+            />
+          ),
+        }}
       />
+      <Tabs.Screen name="collections" options={{ href: null }} />
+      <Tabs.Screen name="settings" options={{ href: null }} />
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
   tabItem: {
+    minWidth: 54,
+    height: 48,
     alignItems: "center",
     justifyContent: "center",
     gap: 3,
   },
-  iconWrapper: {
-    width: 38,
-    height: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 9,
+  activeDot: {
+    width: 3,
+    height: 3,
+    borderRadius: 99,
+    backgroundColor: COLORS.cyan,
   },
-  iconWrapperActive: {
-    backgroundColor: "rgba(200, 255, 46, 0.13)",
-    borderWidth: 1,
-    borderColor: "rgba(200, 255, 46, 0.20)",
+  activeDotAmber: {
+    backgroundColor: COLORS.amber,
   },
   tabLabel: {
-    fontSize: 9,
+    color: COLORS.cyan,
+    fontSize: 10,
     fontWeight: "800",
-    letterSpacing: 0.5,
-    color: COLORS.textTertiary,
   },
-  tabLabelActive: {
-    color: COLORS.lime,
-  },
-  centerTabItem: {
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 8,
-  },
-  centerIconWrapper: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: COLORS.lime,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: COLORS.lime,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.55,
-    shadowRadius: 16,
-    elevation: 6,
+  tabLabelAmber: {
+    color: COLORS.amber,
   },
 });
